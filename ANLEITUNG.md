@@ -91,7 +91,7 @@ Ergebnis: `dist/TresenWerk-<Version>.apk` – diese Datei weitergeben (Messenger
 Vor jeder neuen Version in `app/build.gradle.kts` `versionCode` um 1 erhöhen und `versionName` anpassen,
 sonst lässt sich das Update nicht über die alte Version installieren.
 
-**Kurzanleitung für Tester:** `docs/Kurzanleitung.html` (Versionsnummer oben anpassen) als PDF erzeugen und mit der APK verschicken:
+**Kurzanleitung für Tester:** `docs/Kurzanleitung.html` (Versionsnummer an drei Stellen anpassen: Kopf, Fußzeile in `@page`, APK-Dateiname) als PDF erzeugen und mit der APK verschicken:
 
 ```bash
 google-chrome --headless=new --no-pdf-header-footer --print-to-pdf=dist/TresenWerk-Kurzanleitung.pdf "file://$PWD/docs/Kurzanleitung.html"

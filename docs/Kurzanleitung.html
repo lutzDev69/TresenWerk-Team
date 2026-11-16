@@ -4,111 +4,256 @@
 <meta charset="utf-8">
 <title>TresenWerk – Kurzanleitung</title>
 <style>
-  @page { size: A4; margin: 14mm 14mm 12mm; }
-  :root { --amber: #b77a1c; --ink: #1d1a17; --muted: #5d554d; --line: #e6ddd2; --soft: #faf5ee; }
+  @page {
+    size: A4;
+    margin: 15mm 16mm 16mm;
+    @bottom-left { content: "TresenWerk · Kurzanleitung · Version 0.5.2"; font: 8pt "DejaVu Sans", sans-serif; color: #8a7f75; }
+    @bottom-right { content: "Seite " counter(page) " von " counter(pages); font: 8pt "DejaVu Sans", sans-serif; color: #8a7f75; }
+  }
+  :root { --amber: #b77a1c; --amber-soft: #fbf3e6; --ink: #1d1a17; --muted: #5d554d; --line: #e6ddd2; --soft: #faf7f2; --mint: #4f8a72; --red: #c0483e; }
   * { box-sizing: border-box; }
-  body { font-family: "DejaVu Sans", "Noto Sans", Arial, sans-serif; color: var(--ink); font-size: 9.6pt; line-height: 1.38; margin: 0; }
-  header { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2.5px solid var(--amber); padding-bottom: 6px; margin-bottom: 10px; }
-  h1 { font-size: 21pt; margin: 0; letter-spacing: .3px; }
-  h1 span { color: var(--amber); }
-  .sub { color: var(--muted); font-size: 9.5pt; }
-  .cols { column-count: 2; column-gap: 9mm; }
-  section { break-inside: avoid; margin: 0 0 9px; }
-  h2 { font-size: 11pt; color: var(--amber); margin: 0 0 3px; display: flex; gap: 6px; align-items: center; }
-  h2 .n { background: var(--amber); color: #fff; border-radius: 50%; width: 17px; height: 17px; font-size: 8.5pt; display: inline-flex; align-items: center; justify-content: center; }
-  p { margin: 0 0 4px; }
-  ul, ol { margin: 0 0 4px; padding-left: 15px; }
-  li { margin-bottom: 2px; }
+  body { font-family: "DejaVu Sans", "Noto Sans", Arial, sans-serif; color: var(--ink); font-size: 9.8pt; line-height: 1.45; margin: 0; }
+
+  .cover { display: flex; align-items: center; gap: 18px; padding: 4px 0 14px; border-bottom: 3px solid var(--amber); margin-bottom: 14px; }
+  .cover h1 { font-size: 30pt; margin: 0; letter-spacing: .3px; line-height: 1.05; }
+  .cover h1 span { color: var(--amber); }
+  .cover .tag { color: var(--muted); font-size: 11pt; margin-top: 4px; }
+  .cover .meta { margin-left: auto; text-align: right; font-size: 8.8pt; color: var(--muted); line-height: 1.6; white-space: nowrap; flex: none; }
+  .cover .meta b { color: var(--ink); }
+
+  h2 { font-size: 13pt; color: var(--amber); margin: 16px 0 6px; padding-bottom: 3px; border-bottom: 1px solid var(--line); break-after: avoid; display: flex; align-items: center; gap: 8px; }
+  h2 .n { background: var(--amber); color: #fff; border-radius: 50%; width: 21px; height: 21px; font-size: 10pt; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+  h3 { font-size: 10.5pt; margin: 10px 0 3px; break-after: avoid; }
+  p { margin: 0 0 6px; }
+  ul, ol { margin: 0 0 6px; padding-left: 17px; }
+  li { margin-bottom: 3px; }
   b { font-weight: 700; }
-  .ui { background: var(--soft); border: 1px solid var(--line); border-radius: 4px; padding: 0 3px; white-space: nowrap; font-size: 9pt; }
-  .box { background: var(--soft); border-left: 3px solid var(--amber); padding: 6px 9px; border-radius: 3px; break-inside: avoid; margin-bottom: 9px; }
-  .warn { border-left-color: #c0483e; background: #fdf1ef; }
-  footer { margin-top: 6px; border-top: 1px solid var(--line); padding-top: 5px; color: var(--muted); font-size: 8.4pt; display: flex; justify-content: space-between; }
+  .ui { background: var(--soft); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; white-space: nowrap; font-size: 9.2pt; }
+  .keep { break-inside: avoid; }
+
+  .box { background: var(--amber-soft); border-left: 3px solid var(--amber); padding: 7px 11px; margin: 8px 0; break-inside: avoid; }
+  .box.warn { background: #fdf1ef; border-left-color: var(--red); }
+  .box.ok { background: #eef6f2; border-left-color: var(--mint); }
+  .box p:last-child, .box ul:last-child { margin-bottom: 0; }
+  .box .t { font-weight: 700; display: block; margin-bottom: 2px; }
+  .box.warn .t { color: var(--red); }
+  .box.ok .t { color: var(--mint); }
+
+  .areas { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0 4px; }
+  .area { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--soft); break-inside: avoid; }
+  .area .h { font-weight: 700; color: var(--amber); font-size: 10.5pt; margin-bottom: 2px; }
+  .area p { font-size: 9pt; margin: 0; color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; margin: 6px 0 8px; font-size: 9.2pt; break-inside: avoid; }
+  th, td { text-align: left; padding: 4px 7px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--soft); font-weight: 700; }
+  .lines { display: inline-block; width: 10px; height: 10px; border-radius: 50%; vertical-align: -1px; margin-right: 4px; }
+
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .faq dt { font-weight: 700; margin-top: 7px; break-after: avoid; }
+  .faq dd { margin: 1px 0 0 0; }
+  .page-break { break-before: page; }
 </style>
 </head>
 <body>
-<header>
-  <h1><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="40" height="40" style="vertical-align:-8px;margin-right:9px"><rect width="108" height="108" rx="26" fill="#1C1815"/><rect x="24" y="30" width="60" height="7" rx="2" fill="#E0A84F"/><rect x="34" y="37" width="7" height="14" fill="#E0A84F"/><path d="M30 46 L40 78 L54 54 L68 78 L78 46" fill="none" stroke="#EDE6DF" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><rect x="24" y="84" width="60" height="3" rx="1.5" fill="#8FBFA8"/></svg>Tresen<span>Werk</span></h1>
-  <div class="sub">Kurzanleitung · Testversion 0.5.2 · Android 8 oder neuer</div>
-</header>
+
+<div class="cover">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 108" width="84" height="84" role="img" aria-label="TresenWerk-Logo"><rect width="108" height="108" rx="26" fill="#1C1815"/><rect x="24" y="30" width="60" height="7" rx="2" fill="#E0A84F"/><rect x="34" y="37" width="7" height="14" fill="#E0A84F"/><path d="M30 46 L40 78 L54 54 L68 78 L78 46" fill="none" stroke="#EDE6DF" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><rect x="24" y="84" width="60" height="3" rx="1.5" fill="#8FBFA8"/></svg>
+  <div>
+    <h1>Tresen<span>Werk</span></h1>
+    <div class="tag">Rezepte, Flaschenbestand und Kalkulation für Profis hinter dem Tresen</div>
+  </div>
+  <div class="meta">
+    <b>Kurzanleitung</b><br>
+    Testversion 0.5.2<br>
+    Android 8 oder neuer<br>
+    Stand: November 2026
+  </div>
+</div>
+
+<p>
+  TresenWerk sammelt deine Rezepte, verwaltet deinen Flaschenbestand und rechnet aus, was ein Drink kostet.
+  Du brauchst <b>kein Konto</b> – alles bleibt auf deinem Handy. Unten in der App gibt es drei Bereiche:
+</p>
+
+<div class="areas">
+  <div class="area"><div class="h">Rezepte</div><p>Specs anlegen, suchen, filtern, hochrechnen, Kosten pro Drink</p></div>
+  <div class="area"><div class="h">Bar</div><p>Flaschen scannen, Anzahl und Füllstand, Einkaufsliste</p></div>
+  <div class="area"><div class="h">Daten</div><p>Sicherung, Inventur für den Steuerberater, Beispielrezepte</p></div>
+</div>
+
+<h2><span class="n">1</span> Installieren und Updates</h2>
+<ol>
+  <li>Die Datei <b>TresenWerk-0.5.2.apk</b> auf dem Handy antippen.</li>
+  <li>Fragt Android nach „Apps aus dieser Quelle zulassen“: einmal <b>erlauben</b>, zurück, <b>Installieren</b>.</li>
+  <li>Die App erscheint als <b>TresenWerk</b> mit dem Logo oben.</li>
+</ol>
+<p><b>Updates:</b> Die neue APK einfach über die alte installieren – Rezepte, Flaschen und Fotos bleiben erhalten.</p>
+<div class="box">
+  <span class="t">Zum Ausprobieren</span>
+  <span class="ui">Daten</span> → <span class="ui">Klassiker hinzufügen</span> lädt Daiquiri, Negroni und Old Fashioned als Beispiele.
+</div>
+
+<h2><span class="n">2</span> Rezepte anlegen</h2>
+<p>Im Bereich <span class="ui">Rezepte</span> unten rechts auf <b>+</b> tippen. Pflicht ist nur der Name, alles andere ist freiwillig.</p>
+<table>
+  <tr><th style="width:28%">Feld</th><th>Hinweis</th></tr>
+  <tr><td>Foto</td><td><span class="ui">Kamera</span> oder <span class="ui">Galerie</span> – wird verkleinert in der App gespeichert</td></tr>
+  <tr><td>Zutaten</td><td>Menge, Einheit, Name. Einheiten: ml, cl, oz, Dash, Tropfen, Barlöffel (BL), Stück, Auffüllen. <span class="ui">Zutat hinzufügen</span> für weitere Zeilen, Papierkorb zum Entfernen.</td></tr>
+  <tr><td>Methode, Glas, Eis</td><td>Frei eintippen oder einen Vorschlag antippen (Shaken, Stirred, Coupe, Großer Würfel …)</td></tr>
+  <tr><td>Garnitur, Kategorie</td><td>z. B. „Orangenzeste“, „Gin“ oder „Sour“</td></tr>
+  <tr><td>Tags</td><td>Mit Komma trennen: „Signature, Herbst, Karte 2026“ – danach lässt sich filtern</td></tr>
+  <tr><td>Zubereitung, Notizen</td><td>Arbeitsschritte, Varianten, Herkunft, Kosten …</td></tr>
+</table>
+<div class="box">
+  <span class="t">Tipp für die Zutaten</span>
+  Zutaten so benennen wie die Flasche oder ihre Sorte („Campari“, „Gin“, „Bourbon“, „Roter Wermut“).
+  Dann findet die App die passende Flasche im Bestand und kann Füllstand und Kosten anzeigen.
+</div>
+
+<h2><span class="n">3</span> Suchen, filtern, teilen</h2>
+<ul>
+  <li><b>Suche</b> durchsucht Name, Zutaten, Tags, Methode, Glas, Garnitur und Notizen. Mehrere Wörter müssen alle vorkommen: „gin limette“ findet nur Rezepte mit beidem.</li>
+  <li><b>Filter</b> über der Liste: <span class="ui">★ Favoriten</span>, Methoden (Shaken, Stirred …) und deine Tags.</li>
+  <li><span class="ui">Kann ich mixen</span> zeigt nur Rezepte, deren Zutaten alle im Bestand sind. Bei den übrigen steht in Rot, was fehlt („Fehlt: Roter Wermut“).</li>
+  <li><b>Favorit</b>: Herz in der Liste oder im Rezept antippen.</li>
+  <li><b>Teilen</b>: Im Rezept oben das Teilen-Symbol – verschickt das Rezept als Text per Messenger oder Mail.</li>
+  <li>Bearbeiten (Stift) und Löschen (Papierkorb) ebenfalls oben im Rezept.</li>
+</ul>
+<p>Frische Zutaten und Grundvorrat – Säfte, Sirups, Soda, Tonic, Ginger Beer, Kräuter, Ei – gelten automatisch als vorhanden. Alles Alkoholische (auch „Orangenlikör“) braucht eine Flasche im Bestand.</p>
+
+<h2><span class="n">4</span> Batch-Rechner</h2>
+<p>Im Rezept unter den Zutaten:</p>
+<ul>
+  <li><b>Portionen</b> mit − / + / +10 einstellen – alle Mengen werden hochgerechnet (Dash und Stück werden nur vervielfacht).</li>
+  <li><b>ml / cl / oz</b> umschalten – rechnet alle Volumenangaben um.</li>
+  <li><b>Verdünnung</b> 0–40 %: Wasser für Pre-Batches, das sonst beim Rühren oder Shaken dazukommt. Unten steht die Gesamtmenge mit Wasser.</li>
+</ul>
+
+<h2><span class="n">5</span> Kosten pro Drink</h2>
+<ol>
+  <li>Bei jeder Flasche im Bestand den <b>Einkaufspreis netto pro Flasche</b> eintragen.</li>
+  <li>Im Rezept zeigt die Karte <b>Kosten pro Drink</b> jede Zutat mit Preis und den <b>Wareneinsatz</b>.</li>
+  <li>Darunter der <b>Verkaufspreis-Richtwert (netto)</b> bei 15, 20, 25 oder 30 % Wareneinsatz.</li>
+</ol>
+<p>Zutaten ohne passende Flasche oder ohne Preis stehen unter „Ohne Preis“. Für Dash, Tropfen und Barlöffel rechnet die App mit 0,8 ml, 0,05 ml und 5 ml. Bei mehreren Portionen steht zusätzlich der Wert für den ganzen Batch.</p>
+
+<h2><span class="n">6</span> Flaschen erfassen</h2>
+<p>Im Bereich <span class="ui">Bar</span> gibt es zwei Wege: <span class="ui">Etikett scannen</span> (öffnet sofort die Kamera) oder das kleine <b>+</b> für die manuelle Eingabe.</p>
+
+<h3>Etikett scannen</h3>
+<ul>
+  <li>Flasche <b>frontal</b>, formatfüllend und ohne Spiegelung fotografieren.</li>
+  <li>Die App liest den Text direkt auf dem Handy und schlägt <b>Name, Größe, % vol und Sorte</b> vor („Dry Gin“ → Sorte Gin).</li>
+  <li>Unter <b>Erkannter Text</b> stehen alle gelesenen Zeilen. Oben <span class="ui">Name</span> oder <span class="ui">Marke</span> wählen und Zeilen antippen, um sie zu übernehmen.</li>
+  <li>Schreibschrift-Logos liest die Erkennung oft falsch – dann bleibt der Name leer. Barcode scannen oder Namen eintippen.</li>
+</ul>
+
+<h3>Barcode scannen</h3>
+<ul>
+  <li><span class="ui">▥ Barcode scannen</span> gibt es oben unter dem Foto und unten am Feld <b>Barcode (EAN)</b>.</li>
+  <li>Barcode nah und gerade fotografieren (etwa ein Drittel des Bildes, ohne Spiegelung).</li>
+  <li>Die App schlägt die Nummer in der freien Datenbank <b>Open Food Facts</b> nach und trägt Marke, Name, Größe, % vol und Sorte ein.</li>
+  <li>Kennt die Datenbank die Flasche nicht, den Namen einmal selbst eintragen – der Barcode wird gespeichert und die Flasche beim nächsten Scan erkannt.</li>
+  <li>Die Nummer lässt sich auch eintippen und mit <span class="ui">Nachschlagen</span> abfragen.</li>
+</ul>
+
+<h3>Schon im Bestand?</h3>
+<p>Erkennt die App beim Scannen eine Flasche wieder (Barcode oder ähnliches Etikett), erscheint eine Karte mit drei Möglichkeiten:</p>
+<table>
+  <tr><th style="width:38%">Knopf</th><th>Wann</th></tr>
+  <tr><td><span class="ui">Vorhandene aktualisieren</span></td><td>Dieselbe Flasche – z. B. um den Füllstand neu zu messen</td></tr>
+  <tr><td><span class="ui">Weitere Flasche (Anzahl +1)</span></td><td>Noch eine Flasche desselben Produkts ins Regal gestellt</td></tr>
+  <tr><td><span class="ui">Anderes Produkt</span></td><td>Die App hat sich geirrt – alles bleibt wie gescannt</td></tr>
+</table>
+<p>Speicherst du, ohne die Karte zu beantworten, fragt die App noch einmal nach.</p>
+
+<h2><span class="n">7</span> Bestand: Anzahl und Füllstand</h2>
+<ul>
+  <li><b>Anzahl Flaschen</b> mit − / + einstellen – <b>inklusive</b> der angebrochenen.</li>
+  <li>Der <b>Füllstand</b> gilt für die angebrochene Flasche. Darüber steht die Gesamtmenge („40 % · gesamt ~1680 ml“).</li>
+  <li><span class="ui">Leer – nächste öffnen</span>: zieht eine Flasche ab und setzt den Füllstand auf 100 %.</li>
+  <li><b>Anzahl 0</b>: Das Produkt bleibt in der Liste, gilt aber als leer.</li>
+</ul>
+
+<h3>Füllstand am Foto messen</h3>
+<p>Mit Foto der Flasche: <span class="ui">Am Foto messen</span> antippen und drei Linien auf das Bild schieben (ziehen oder antippen):</p>
+<table>
+  <tr><th style="width:24%">Linie</th><th>Gehört auf …</th></tr>
+  <tr><td><span class="lines" style="background:#8FBFA8"></span>Grün</td><td>den Flaschenboden (innen)</td></tr>
+  <tr><td><span class="lines" style="background:#6FA8DC"></span>Blau</td><td>die Höhe einer vollen Flasche – meist die Schulter</td></tr>
+  <tr><td><span class="lines" style="background:#E0A84F"></span>Gelb</td><td>die Oberfläche der Flüssigkeit</td></tr>
+</table>
+<p>Am besten frontal auf Augenhöhe fotografieren. Bei bauchigen Flaschen ist das Ergebnis ein Richtwert.</p>
+
+<h3>Bestandsliste, Nachkaufen, Einkaufsliste</h3>
+<ul>
+  <li>Die Liste zeigt pro Produkt Anzahl, Größe, % vol, Preis und den Bestand („10 % + 2 volle“). Rot heißt: nachkaufen.</li>
+  <li><b>Nachkaufen</b> gilt, wenn keine volle Reserveflasche mehr da ist und die angebrochene bei höchstens 20 % steht.</li>
+  <li>Filter <span class="ui">Nachkaufen</span> und Sorten über der Liste, Suche nach Name, Marke, Notiz oder Barcode.</li>
+  <li><span class="ui">Einkaufsliste</span> oben rechts: teilt alle nachzukaufenden Flaschen als Liste mit Häkchen-Kästchen, nach Sorte sortiert, mit letztem Preis und Summe.</li>
+</ul>
+
+<h2><span class="n">8</span> Daten: Sicherung und Inventur</h2>
+
+<div class="box warn">
+  <span class="t">Wichtig: regelmäßig sichern!</span>
+  Alles liegt nur auf deinem Handy. Wird die App gelöscht oder das Handy getauscht, sind die Daten ohne Sicherung weg.
+</div>
+
+<h3>Sicherung</h3>
+<ul>
+  <li><span class="ui">Sicherung erstellen</span> speichert Rezepte, Flaschen und <b>alle Fotos</b> in einer ZIP-Datei, z. B. <i>tresenwerk-2026-11-16_15-44-07.zip</i>.</li>
+  <li><span class="ui">Sicherung einlesen</span> holt sie zurück – auch auf einem neuen Handy. Rezepte und Flaschen mit gleichem Namen werden übersprungen, es entstehen keine Doppelten.</li>
+</ul>
+
+<h3>Inventur für den Steuerberater</h3>
+<ul>
+  <li><span class="ui">Inventur als CSV exportieren</span> erstellt eine Tabelle, die sich direkt in Excel oder LibreOffice öffnet – Stichtag und Uhrzeit stehen oben und im Dateinamen.</li>
+  <li>Pro Produkt: Sorte, Marke, Produkt, Flaschengröße, Barcode, volle Flaschen, Füllstand der angebrochenen, Bestand in Flaschen und Litern, <b>Einkaufspreis netto</b> und <b>Warenwert netto</b>; am Ende die <b>Summe</b>.</li>
+  <li>Angebrochene Flaschen werden anteilig nach Füllstand bewertet. Volle und angebrochene stehen in eigenen Spalten – so kann dein Steuerberater auch anders rechnen.</li>
+  <li>Flaschen ohne Preis stehen mit „Preis fehlt“ in der Liste, zählen aber nicht zur Summe. Vorher Preise ergänzen!</li>
+</ul>
 
 <div class="box">
-  Deine Rezepte, dein Flaschenbestand und deine Kalkulation in einer App – ohne Konto, alles bleibt auf deinem Handy.
-  Unten hast du drei Bereiche: <span class="ui">Rezepte</span> <span class="ui">Bar</span> <span class="ui">Daten</span>.
+  <span class="t">Wohin speichern?</span>
+  Im Speichern-Dialog oben links auf das Menü (☰) tippen und <b>Google Drive</b> oder <b>Nextcloud</b> wählen – dann ist die Datei
+  gleich auf dem Computer erreichbar. Oder die Datei später in der Datei-App lange antippen → <b>Teilen</b> → per Mail verschicken.
 </div>
 
-<div class="cols">
-
-<section>
-  <h2><span class="n">1</span> Installieren</h2>
-  <ol>
-    <li>Die Datei <b>TresenWerk-0.5.2.apk</b> auf dem Handy antippen.</li>
-    <li>Fragt Android nach „Apps aus dieser Quelle“: einmal <b>erlauben</b>, zurück, <b>Installieren</b>.</li>
-    <li>Updates kommen genauso – einfach die neue Datei installieren, deine Daten bleiben.</li>
-  </ol>
-</section>
-
-<section>
-  <h2><span class="n">2</span> Rezepte</h2>
+<h2><span class="n">9</span> Datenschutz</h2>
+<div class="box ok">
+  <span class="t">Deine Daten bleiben bei dir</span>
   <ul>
-    <li><b>+</b> legt ein Rezept an: Zutaten mit ml, cl, oz, Dash, Barlöffel …, dazu Methode, Glas, Eis, Garnitur, Tags, Foto.</li>
-    <li>Zum Ausprobieren: <span class="ui">Daten</span> → <span class="ui">Klassiker hinzufügen</span>.</li>
-    <li><b>Suche</b> findet Name, Zutat und Tag; mehrere Wörter = alle müssen passen („gin limette“).</li>
-    <li>Filter: <span class="ui">★ Favoriten</span>, Methode, Tags – und <span class="ui">Kann ich mixen</span>.</li>
-    <li>Im Rezept: <b>Batch-Rechner</b> (Portionen, ml/cl/oz, Verdünnung für Pre-Batches) und <b>Teilen</b> als Text.</li>
+    <li>Kein Konto, keine Werbung, keine Nutzungsstatistik.</li>
+    <li>Texterkennung und Barcode-Lesen laufen komplett auf dem Handy.</li>
+    <li>Ins Internet geht nur die <b>Barcode-Nummer</b> beim Nachschlagen (verschlüsselt an Open Food Facts).</li>
+    <li>Fotos macht die normale Kamera-App, die Galerie öffnet Androids Fotoauswahl – die App braucht dafür keine Zusatzrechte.</li>
   </ul>
-</section>
-
-<section>
-  <h2><span class="n">3</span> Flaschen erfassen</h2>
-  <ul>
-    <li><span class="ui">Bar</span> → <span class="ui">Etikett scannen</span>: Flasche frontal fotografieren. Größe, % vol und Sorte werden gelesen.</li>
-    <li><span class="ui">Barcode scannen</span>: holt Marke und Name aus der freien Datenbank Open Food Facts. Kennt sie die Flasche nicht, Namen einmal eintippen – beim nächsten Scan erkennt die App sie wieder.</li>
-    <li>Schreibschrift-Logos liest die Erkennung oft nicht – dann Barcode nutzen oder erkannte Textzeilen antippen.</li>
-  </ul>
-</section>
-
-<section>
-  <h2><span class="n">4</span> Füllstand</h2>
-  <ul>
-    <li>Schieberegler – oder <span class="ui">Füllstand am Foto messen</span>: <b>grün</b> auf den Boden, <b>blau</b> auf „voll“ (Schulter), <b>gelb</b> auf die Flüssigkeit.</li>
-    <li>Flasche erneut scannen → <span class="ui">Vorhandene aktualisieren</span>. Noch eine gleiche Flasche → <span class="ui">Weitere Flasche (Anzahl +1)</span>.</li>
-    <li><b>Anzahl Flaschen</b> mit − / + eintragen (inkl. der angebrochenen). Ist sie leer: <span class="ui">Leer – nächste öffnen</span>.</li>
-    <li><span class="ui">Einkaufsliste</span> (oben im Bestand) teilt alles, was ohne Reserve unter 20 % ist.</li>
-  </ul>
-</section>
-
-<section>
-  <h2><span class="n">5</span> Kosten pro Drink</h2>
-  <ul>
-    <li>Bei der Flasche den <b>Einkaufspreis netto</b> eintragen.</li>
-    <li>Im Rezept stehen dann Wareneinsatz pro Drink und ein Verkaufspreis-Richtwert (netto) bei 15–30 % Wareneinsatz.</li>
-    <li>Tipp: Zutaten so benennen wie Flasche oder Sorte („Campari“, „Gin“, „Bourbon“), dann findet die App sie im Bestand. Säfte, Sirups, Soda, Kräuter gelten als vorhanden.</li>
-  </ul>
-</section>
-
-<section class="box warn">
-  <h2 style="color:#c0483e">Wichtig: Sichern!</h2>
-  <p>Alles liegt nur auf deinem Handy. Wird die App gelöscht oder das Handy getauscht, ist es weg.</p>
-  <p><span class="ui">Daten</span> → <span class="ui">Sicherung erstellen</span> speichert Rezepte, Flaschen und Fotos als ZIP-Datei – z. B. in Google Drive. <span class="ui">Sicherung einlesen</span> holt sie zurück.</p>
-  <p>Für den Steuerberater: <span class="ui">Inventur als CSV exportieren</span> – Bestand und Warenwert als Excel-Tabelle.</p>
-</section>
-
-<section>
-  <h2><span class="n">?</span> Datenschutz</h2>
-  <p>Kein Konto, keine Werbung, kein Tracking. Ins Internet geht nur die <b>Barcode-Nummer</b> beim Nachschlagen (an Open Food Facts). Fotos öffnen die normale Kamera-App.</p>
-</section>
-
-<section>
-  <h2><span class="n">!</span> Feedback</h2>
-  <p>Es ist eine Testversion – genau dein Feedback macht sie besser. Am hilfreichsten: <b>Screenshot</b> plus ein Satz, was du erwartet hättest. Auch Wünsche für fehlende Funktionen sind willkommen.</p>
-</section>
-
 </div>
+<p>Sicherungen und Inventur-Dateien sind nicht verschlüsselt und enthalten deine Einkaufspreise – also nicht dauerhaft im Download-Ordner liegen lassen.</p>
 
-<footer>
-  <span>TresenWerk · Testversion für Profis hinter dem Tresen</span>
-  <span>Stand: November 2026</span>
-</footer>
+<h2><span class="n">10</span> Wenn etwas nicht klappt</h2>
+<dl class="faq">
+  <div class="keep"><dt>Der Name wird beim Etikett-Scan nicht oder falsch erkannt.</dt>
+  <dd>Verschnörkelte Logos liest die Erkennung schlecht. Barcode scannen, erkannte Textzeilen antippen oder den Namen eintippen. Einmal korrigiert, erkennt die App die Flasche beim nächsten Scan wieder.</dd></div>
+  <div class="keep"><dt>„Kein Barcode erkannt“.</dt>
+  <dd>Näher ran, Barcode gerade halten, Spiegelungen vermeiden. Bei runden Flaschen so drehen, dass der Barcode zur Kamera zeigt. Notfalls die Nummer unter dem Barcode eintippen.</dd></div>
+  <div class="keep"><dt>„Nicht in Open Food Facts bekannt“.</dt>
+  <dd>Kleine Marken fehlen oft. Namen einmal selbst eintragen – der Barcode bleibt gespeichert.</dd></div>
+  <div class="keep"><dt>Ein Rezept zeigt „nicht im Bestand“, obwohl die Flasche da ist.</dt>
+  <dd>Zutat im Rezept so nennen wie die Flasche oder ihre Sorte (z. B. „Gin“ statt „London Dry“), oder bei der Flasche die Sorte eintragen.</dd></div>
+  <div class="keep"><dt>Das Update lässt sich nicht installieren („App nicht installiert“).</dt>
+  <dd>Kommt vor, wenn die alte Version aus einer anderen Quelle stammt. Sicherung erstellen, alte App deinstallieren, neue installieren, Sicherung einlesen.</dd></div>
+  <div class="keep"><dt>Ich finde die exportierte Datei nicht auf dem Computer.</dt>
+  <dd>Sie liegt im Download-Ordner des Handys. Beim nächsten Mal direkt in Google Drive speichern oder per Mail teilen (siehe Abschnitt 8).</dd></div>
+</dl>
+
+<h2><span class="n">!</span> Feedback</h2>
+<p>
+  Das ist eine Testversion – dein Feedback macht sie besser. Am hilfreichsten ist ein <b>Screenshot</b> plus ein Satz,
+  was du erwartet hättest. Wünsche für fehlende Funktionen sind genauso willkommen.
+</p>
+
 </body>
 </html>
