@@ -54,6 +54,8 @@ import coil3.compose.AsyncImage
 import de.tresenwerk.app.data.Bottle
 import de.tresenwerk.app.data.RecipeWithIngredients
 import de.tresenwerk.app.data.displayName
+import de.tresenwerk.app.data.needsRestock
+import de.tresenwerk.app.data.stockLabel
 import de.tresenwerk.app.data.tagList
 import de.tresenwerk.app.domain.Availability
 import de.tresenwerk.app.domain.BatchCalculator
@@ -156,9 +158,9 @@ fun RecipeDetailScreen(
                         )
                         if (bottle != null) {
                             Text(
-                                "${bottle.displayName().take(18)} ${bottle.fillPercent} %",
+                                "${bottle.displayName().take(18)} ${bottle.stockLabel()}",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = if (bottle.fillPercent <= 20) LowStock else MaterialTheme.colorScheme.secondary,
+                                color = if (bottle.needsRestock()) LowStock else MaterialTheme.colorScheme.secondary,
                                 textAlign = TextAlign.End,
                             )
                         } else if (bottles.isNotEmpty() && !Availability.isPantry(line.name)) {

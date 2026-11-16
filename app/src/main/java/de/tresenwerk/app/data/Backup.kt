@@ -57,6 +57,7 @@ object Backup {
                     put("category", b.category)
                     put("sizeMl", b.sizeMl)
                     put("fillPercent", b.fillPercent)
+                    put("bottleCount", b.bottleCount)
                     put("abv", b.abv ?: JSONObject.NULL)
                     put("labelText", b.labelText)
                     put("notes", b.notes)
@@ -107,6 +108,7 @@ object Backup {
                 category = o.optString("category"),
                 sizeMl = o.optInt("sizeMl", 700),
                 fillPercent = o.optInt("fillPercent", 100),
+                bottleCount = o.optInt("bottleCount", 1).coerceAtLeast(0),
                 abv = if (o.isNull("abv")) null else o.optDouble("abv").takeUnless { it.isNaN() },
                 labelText = o.optString("labelText"),
                 notes = o.optString("notes"),

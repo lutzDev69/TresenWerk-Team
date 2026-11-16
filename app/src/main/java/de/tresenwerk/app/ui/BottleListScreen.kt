@@ -38,7 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.tresenwerk.app.data.Bottle
+import de.tresenwerk.app.data.LOW_STOCK_PERCENT
 import de.tresenwerk.app.data.displayName
+import de.tresenwerk.app.data.needsRestock
+import de.tresenwerk.app.data.stockLabel
+import de.tresenwerk.app.data.totalMl
 import de.tresenwerk.app.domain.ShoppingList
 import de.tresenwerk.app.domain.formatAmount
 import de.tresenwerk.app.domain.formatEuro
@@ -47,9 +51,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.platform.LocalContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import de.tresenwerk.app.scan.FillLevel
 
-const val LOW_STOCK_PERCENT = 20
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,12 +70,12 @@ fun BottleListScreen(
         val terms = query.trim().lowercase().split(Regex("\\s+")).filter { it.isNotEmpty() }
         bottles.filter { b ->
             val hay = "${b.name} ${b.brand} ${b.category} ${b.notes} ${b.barcode ?: ""}".lowercase()
-            (!lowOnly || b.fillPercent <= LOW_STOCK_PERCENT) &&
+            (!lowOnly || b.needsRestock()) &&
                 (category == null || b.category.equals(category, ignoreCase = true)) &&
                 terms.all { it in hay }
         }
     }
-    val lowCount = bottles.count { it.fillPercent <= LOW_STOCK_PERCENT }
+    val lowCount = bottles.count { it.needsRestock() }
     val context = LocalContext.current
 
     Scaffold(
@@ -145,7 +147,7 @@ fun BottleListScreen(
 
 @Composable
 private fun BottleRow(b: Bottle, onClick: () -> Unit) {
-    val low = b.fillPercent <= LOW_STOCK_PERCENT
+    val low = b.needsRestock()
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -156,19 +158,19 @@ private fun BottleRow(b: Bottle, onClick: () -> Unit) {
             Text(b.displayName(), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
             val facts = listOfNotNull(
                 b.category.takeIf { it.isNotBlank() },
-                "${b.sizeMl} ml",
+                if (b.bottleCount == 1) "${b.sizeMl} ml" else "${b.bottleCount} × ${b.sizeMl} ml",
                 b.abv?.let { "${formatAmount(it)} % vol" },
                 b.price?.let { formatEuro(it) },
             ).joinToString(" · ")
             Text(facts, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 LinearProgressIndicator(
-                    progress = { b.fillPercent / 100f },
+                    progress = { if (b.bottleCount <= 0) 0f else b.fillPercent / 100f },
                     modifier = Modifier.weight(1f),
                     color = if (low) LowStock else MaterialTheme.colorScheme.secondary,
                 )
                 Text(
-                    "${b.fillPercent} % · ~${FillLevel.remainingMl(b.sizeMl, b.fillPercent)} ml",
+                    "${b.stockLabel()} · ~${b.totalMl()} ml",
                     style = MaterialTheme.typography.labelSmall,
                     color = if (low) LowStock else MaterialTheme.colorScheme.onSurfaceVariant,
                 )

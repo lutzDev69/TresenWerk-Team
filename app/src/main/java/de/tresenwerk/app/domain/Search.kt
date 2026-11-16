@@ -3,6 +3,8 @@ package de.tresenwerk.app.domain
 import de.tresenwerk.app.data.Bottle
 import de.tresenwerk.app.data.RecipeWithIngredients
 import de.tresenwerk.app.data.displayName
+import de.tresenwerk.app.data.hasStock
+import de.tresenwerk.app.data.totalMl
 import de.tresenwerk.app.data.tagList
 import de.tresenwerk.app.scan.CategoryGuess
 
@@ -49,7 +51,7 @@ object Stock {
                     .filter { it.trim().length >= 3 }
                     .any { containsWords(it, needle) || containsWords(needle, it) }
             }
-            .maxByOrNull { it.fillPercent }
+            .maxByOrNull { it.totalMl() }
             ?.let { return it }
         // 2. Sorte passt, z. B. "Weißer Rum" → Sorte Rum, "Bourbon" → Sorte Whisk(e)y
         val guessed = CategoryGuess.fromText(needle)
@@ -58,7 +60,7 @@ object Stock {
                 b.category.isNotBlank() &&
                     (b.category.equals(guessed, ignoreCase = true) || containsWords(needle, b.category))
             }
-            .maxByOrNull { it.fillPercent }
+            .maxByOrNull { it.totalMl() }
     }
 
     /** true, wenn [words] als ganze Wortfolge in [text] vorkommt (Groß-/Kleinschreibung egal). */
@@ -100,7 +102,7 @@ object Availability {
         recipe.sortedIngredients().map { it.name }.filter { name ->
             val bottle = Stock.find(name, bottles)
             when {
-                bottle != null && bottle.fillPercent > 0 -> false
+                bottle != null && bottle.hasStock() -> false
                 bottle == null && isPantry(name) -> false
                 else -> true
             }

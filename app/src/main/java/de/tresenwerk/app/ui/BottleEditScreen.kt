@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -29,6 +30,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -46,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,13 +58,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.tresenwerk.app.data.Bottle
 import de.tresenwerk.app.data.displayName
+import de.tresenwerk.app.data.stockLabel
 import de.tresenwerk.app.domain.formatAmount
 import de.tresenwerk.app.scan.BarcodeReader
 import de.tresenwerk.app.scan.BottleMatcher
-import de.tresenwerk.app.scan.FillLevel
 import de.tresenwerk.app.scan.LabelParser
 import de.tresenwerk.app.scan.LabelScanner
 import de.tresenwerk.app.scan.ProductInfo
@@ -95,6 +99,7 @@ fun BottleEditScreen(
     var barcode by remember { mutableStateOf(initial?.barcode ?: "") }
     var priceText by remember { mutableStateOf(initial?.price?.let(::formatAmount) ?: "") }
     var fill by remember { mutableFloatStateOf((initial?.fillPercent ?: 100).toFloat()) }
+    var count by remember { mutableIntStateOf(initial?.bottleCount ?: 1) }
     var notes by remember { mutableStateOf(initial?.notes ?: "") }
     var labelText by remember { mutableStateOf(initial?.labelText ?: "") }
     var photoPath by remember { mutableStateOf(initial?.photoPath) }
@@ -240,6 +245,7 @@ fun BottleEditScreen(
         sizeText = b.sizeMl.toString()
         abvText = b.abv?.let(::formatAmount) ?: abvText
         fill = b.fillPercent.toFloat()
+        count = b.bottleCount
         notes = b.notes
         if (b.labelText.isNotBlank()) labelText = b.labelText
         barcode = b.barcode ?: barcode
@@ -249,22 +255,11 @@ fun BottleEditScreen(
         scanMessage = "Vorhandene Flasche übernommen. Jetzt den Füllstand messen und speichern."
     }
 
-    /** Zweite Flasche desselben Produkts: Produktdaten übernehmen, aber als eigene Flasche anlegen. */
-    fun copyProduct(b: Bottle) {
-        base = null
-        name = b.name
-        nameIsAuto = false
-        brand = b.brand
-        category = b.category
-        sizeText = b.sizeMl.toString()
-        abvText = b.abv?.let(::formatAmount) ?: abvText
-        if (b.labelText.isNotBlank()) labelText = b.labelText
-        barcode = b.barcode ?: barcode
-        b.price?.let { priceText = formatAmount(it) }
-        fill = 100f
-        match = null
-        matchDismissed = true
-        scanMessage = "Produktdaten übernommen – wird als weitere Flasche angelegt (Füllstand 100 %)."
+    /** Noch eine Flasche desselben Produkts: vorhandenen Eintrag übernehmen und die Anzahl um 1 erhöhen. */
+    fun addOneMore(b: Bottle) {
+        useExisting(b)
+        count = b.bottleCount + 1
+        scanMessage = "Eine Flasche mehr: jetzt $count Flaschen ${b.displayName()}. Zum Übernehmen speichern."
     }
 
     /** Falsch erkannt: Vorschlag verwerfen, gescannte Werte bleiben. */
@@ -291,6 +286,7 @@ fun BottleEditScreen(
                 category = category.trim(),
                 sizeMl = sizeText.trim().toIntOrNull()?.coerceIn(1, 20000) ?: 700,
                 fillPercent = fill.roundToInt(),
+                bottleCount = count,
                 abv = abvText.trim().replace(',', '.').toDoubleOrNull(),
                 notes = notes.trim(),
                 labelText = labelText,
@@ -306,11 +302,11 @@ fun BottleEditScreen(
         AlertDialog(
             onDismissRequest = { askMatchOnSave = false },
             title = { Text("Diese Flasche gibt es schon") },
-            text = { Text("„${pendingMatch.displayName()}“ ist schon im Bestand (zuletzt ${pendingMatch.fillPercent} %). Was möchtest du tun?") },
+            text = { Text("„${pendingMatch.displayName()}“ ist schon im Bestand (${pendingMatch.stockLabel()}). Was möchtest du tun?") },
             confirmButton = {
                 Column(horizontalAlignment = Alignment.End) {
                     TextButton(onClick = { askMatchOnSave = false; useExisting(pendingMatch) }) { Text("Vorhandene aktualisieren") }
-                    TextButton(onClick = { askMatchOnSave = false; copyProduct(pendingMatch) }) { Text("Zweite Flasche, gleiches Produkt") }
+                    TextButton(onClick = { askMatchOnSave = false; addOneMore(pendingMatch) }) { Text("Weitere Flasche (Anzahl +1)") }
                     TextButton(onClick = { askMatchOnSave = false; otherProduct(); save(ignoreMatch = true) }) { Text("Anderes Produkt speichern") }
                     TextButton(onClick = { askMatchOnSave = false }) { Text("Abbrechen") }
                 }
@@ -364,9 +360,9 @@ fun BottleEditScreen(
                 Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
                     Column(Modifier.fillMaxWidth().padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("Schon im Bestand?", style = MaterialTheme.typography.titleSmall)
-                        Text("${m.displayName()} · ${m.sizeMl} ml · zuletzt ${m.fillPercent} %")
+                        Text("${m.displayName()} · ${m.sizeMl} ml · ${m.stockLabel()}")
                         Button(onClick = { useExisting(m) }, Modifier.fillMaxWidth()) { Text("Vorhandene aktualisieren") }
-                        FilledTonalButton(onClick = { copyProduct(m) }, Modifier.fillMaxWidth()) { Text("Zweite Flasche, gleiches Produkt") }
+                        FilledTonalButton(onClick = { addOneMore(m) }, Modifier.fillMaxWidth()) { Text("Weitere Flasche (Anzahl +1)") }
                         OutlinedButton(onClick = ::otherProduct, Modifier.fillMaxWidth()) { Text("Anderes Produkt") }
                     }
                 }
@@ -448,10 +444,35 @@ fun BottleEditScreen(
                 }
             }
 
-            SectionTitle("Füllstand: ${fill.roundToInt()} %  (~${FillLevel.remainingMl(sizeText.toIntOrNull() ?: 700, fill.roundToInt())} ml)")
-            Slider(value = fill, onValueChange = { fill = it }, valueRange = 0f..100f, steps = 19)
-            FilledTonalButton(onClick = { showFillDialog = true }, enabled = photoPath != null) {
-                Text(if (photoPath != null) "Füllstand am Foto messen" else "Für Messung erst ein Foto machen")
+            SectionTitle("Bestand")
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Column(Modifier.weight(1f)) {
+                    Text("Anzahl Flaschen", style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        "inkl. der angebrochenen",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                FilledTonalIconButton(onClick = { count = (count - 1).coerceAtLeast(0) }) { Text("−") }
+                Text("$count", Modifier.width(40.dp), textAlign = TextAlign.Center, style = MaterialTheme.typography.titleLarge)
+                FilledTonalIconButton(onClick = { count = (count + 1).coerceAtMost(999) }) { Text("+") }
+            }
+
+            val size = sizeText.toIntOrNull() ?: 700
+            val totalMl = if (count <= 0) 0 else (count - 1) * size + size * fill.roundToInt() / 100
+            Text(
+                (if (count > 1) "Angebrochene Flasche: " else "Füllstand: ") + "${fill.roundToInt()} %   ·   gesamt ~$totalMl ml",
+                style = MaterialTheme.typography.titleSmall,
+            )
+            Slider(value = fill, onValueChange = { fill = it }, valueRange = 0f..100f, steps = 19, enabled = count > 0)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilledTonalButton(onClick = { showFillDialog = true }, enabled = photoPath != null && count > 0) {
+                    Text(if (photoPath != null) "Am Foto messen" else "Messen: erst Foto machen")
+                }
+                if (count > 1) {
+                    OutlinedButton(onClick = { count -= 1; fill = 100f }) { Text("Leer – nächste öffnen") }
+                }
             }
 
             OutlinedTextField(notes, { notes = it }, Modifier.fillMaxWidth(), label = { Text("Notizen (Lieferant, Preis, Lagerort …)") }, minLines = 2)

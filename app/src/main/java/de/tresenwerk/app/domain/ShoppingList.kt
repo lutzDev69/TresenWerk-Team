@@ -2,11 +2,13 @@ package de.tresenwerk.app.domain
 
 import de.tresenwerk.app.data.Bottle
 import de.tresenwerk.app.data.displayName
+import de.tresenwerk.app.data.needsRestock
+import de.tresenwerk.app.data.stockLabel
 
-/** Einkaufsliste aus dem Bestand: alle Flaschen bis [threshold] % Füllstand, nach Sorte gruppiert. */
+/** Einkaufsliste: Produkte ohne volle Reserveflasche, deren angebrochene Flasche bei höchstens [threshold] % ist. */
 object ShoppingList {
     fun items(bottles: List<Bottle>, threshold: Int): List<Bottle> =
-        bottles.filter { it.fillPercent <= threshold }
+        bottles.filter { it.needsRestock(threshold) }
             .sortedWith(compareBy({ it.category.ifBlank { "~" }.lowercase() }, { it.displayName().lowercase() }))
 
     fun format(bottles: List<Bottle>, threshold: Int, date: String): String {
@@ -18,7 +20,7 @@ object ShoppingList {
                 appendLine()
                 appendLine(category)
                 list.forEach { b ->
-                    append("☐ ${b.displayName()} (${b.sizeMl} ml) – noch ${b.fillPercent} %")
+                    append("☐ ${b.displayName()} (${b.sizeMl} ml) – noch ${b.stockLabel()}")
                     b.price?.let { append(" – zuletzt ${formatEuro(it)}") }
                     appendLine()
                 }

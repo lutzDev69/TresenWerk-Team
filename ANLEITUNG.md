@@ -2,12 +2,12 @@
 
 Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf dem Gerät (kein Konto). Internet wird nur für die Barcode-Abfrage gebraucht.
 
-## Funktionen (Version 0.3)
+## Funktionen (Version 0.4)
 
 - **Rezepte**: Name, Zutaten mit Menge und Einheit (ml, cl, oz, Dash, Tropfen, Barlöffel, Stück, Auffüllen), Methode, Glas, Eis, Garnitur, Kategorie, Tags, Zubereitung, Notizen, Foto
 - **Suche & Filter**: Volltextsuche (mehrere Wörter = alle müssen vorkommen), Filter nach Favoriten, Methode und Tag
 - **Batch-Rechner**: Rezept auf beliebig viele Portionen hochrechnen, Umrechnung ml/cl/oz, Verdünnungswasser für Pre-Batches
-- **Bar-Bestand**: Flaschen mit Größe, Alkoholgehalt und Füllstand; Filter „Nachkaufen“ (≤ 20 %)
+- **Bar-Bestand**: Flaschen mit Größe, Alkoholgehalt, Anzahl und Füllstand der angebrochenen Flasche; „Leer – nächste öffnen“; Filter „Nachkaufen“ (keine Reserve und ≤ 20 %)
 - **Etikett scannen**: Foto der Flasche → Texterkennung auf dem Gerät (Google ML Kit) schlägt Name, Größe und % vol vor
 - **Barcode scannen**: Barcode fotografieren → Name, Marke, Größe, % vol und Sorte aus Open Food Facts (gesendet wird nur die Barcode-Nummer). Klappt auch ohne Netz: der Barcode wird gespeichert und die Flasche beim nächsten Scan wiedererkannt
 - **Wiedererkennen**: Scannt man eine Flasche erneut (Barcode oder ähnliches Etikett), bietet die App „Diese aktualisieren“ an – praktisch zum Nachmessen des Füllstands. Einmal korrigierte Namen bleiben so erhalten
@@ -111,7 +111,7 @@ als `keystore.properties` kopieren und Passwort bei `storePassword` und `keyPass
 - **Füllstand**: Für die Messung die Flasche frontal auf Augenhöhe fotografieren. Grün = Innenboden, Blau = Höhe einer vollen Flasche (meist die Schulter), Gelb = Flüssigkeit. Die Rechnung ist linear; bei bauchigen Flaschen ist sie nur ein Richtwert.
 - **Sicherung**: regelmäßig unter „Daten“ erstellen – bei Deinstallation der App sind sonst alle Daten weg.
 
-## Grenzen der Version 0.3
+## Grenzen der Version 0.4
 
 - Der Füllstand wird nicht automatisch erkannt, sondern mit den Linien gemessen.
 - Kleine Marken fehlen oft in Open Food Facts; dann Name einmal selbst eintragen.
