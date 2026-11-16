@@ -71,6 +71,7 @@ data class Bottle(
     val notes: String = "",
     val updatedAt: Long = System.currentTimeMillis(),
     val barcode: String? = null,   // EAN/UPC, seit Datenbank-Version 2
+    val price: Double? = null,     // Einkaufspreis pro Flasche in €, seit Datenbank-Version 3
 )
 
 fun Bottle.displayName(): String = listOf(brand, name).filter { it.isNotBlank() }.joinToString(" ")

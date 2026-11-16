@@ -7,13 +7,14 @@ import kotlin.math.roundToLong
  * Maßeinheiten an der Bar. [ml] ist der Umrechnungsfaktor in Milliliter,
  * null bei Einheiten, die sich nicht sinnvoll umrechnen lassen (Dash, Stück …).
  */
-enum class Measure(val label: String, val longLabel: String, val ml: Double?) {
+enum class Measure(val label: String, val longLabel: String, val ml: Double?, val approxMl: Double? = ml) {
     ML("ml", "Milliliter (ml)", 1.0),
     CL("cl", "Zentiliter (cl)", 10.0),
     OZ("oz", "Unze (oz)", 29.5735),
-    DASH("Dash", "Dash", null),
-    DROP("Tropfen", "Tropfen", null),
-    BARSPOON("BL", "Barlöffel (BL)", null),
+    // Für die Kostenrechnung genügen Näherungswerte
+    DASH("Dash", "Dash", null, approxMl = 0.8),
+    DROP("Tropfen", "Tropfen", null, approxMl = 0.05),
+    BARSPOON("BL", "Barlöffel (BL)", null, approxMl = 5.0),
     PIECE("Stk.", "Stück", null),
     TOP("auff.", "Auffüllen (top)", null),
     NONE("", "ohne Einheit", null);
@@ -43,3 +44,6 @@ fun formatIngredient(amount: Double?, unit: Measure, name: String): String = whe
     unit == Measure.NONE -> "${formatAmount(amount)} $name"
     else -> "${formatAmount(amount)} ${unit.label} $name"
 }
+
+/** Geldbetrag auf Deutsch: 1.5 → "1,50 €". */
+fun formatEuro(value: Double): String = String.format(Locale.GERMANY, "%.2f €", value)

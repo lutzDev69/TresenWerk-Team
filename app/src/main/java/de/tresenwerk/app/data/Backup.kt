@@ -63,6 +63,7 @@ object Backup {
                     put("updatedAt", b.updatedAt)
                     put("barcode", b.barcode ?: JSONObject.NULL)
                     put("photo", photoEntry(b.photoPath))
+                    put("price", b.price ?: JSONObject.NULL)
                 })
             }
         })
@@ -111,6 +112,7 @@ object Backup {
                 notes = o.optString("notes"),
                 updatedAt = o.optLong("updatedAt", now),
                 barcode = if (o.isNull("barcode")) null else o.optString("barcode").ifBlank { null },
+                price = if (o.isNull("price")) null else o.optDouble("price").takeUnless { it.isNaN() },
                 photoPath = o.photo(),
             )
         }

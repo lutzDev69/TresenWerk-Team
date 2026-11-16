@@ -39,7 +39,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.tresenwerk.app.data.Bottle
 import de.tresenwerk.app.data.displayName
+import de.tresenwerk.app.domain.ShoppingList
 import de.tresenwerk.app.domain.formatAmount
+import de.tresenwerk.app.domain.formatEuro
+import android.content.Intent
+import androidx.compose.material3.TextButton
+import androidx.compose.ui.platform.LocalContext
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import de.tresenwerk.app.scan.FillLevel
 
 const val LOW_STOCK_PERCENT = 20
@@ -67,9 +74,25 @@ fun BottleListScreen(
         }
     }
     val lowCount = bottles.count { it.fillPercent <= LOW_STOCK_PERCENT }
+    val context = LocalContext.current
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Bar-Bestand (${bottles.size})") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Bar-Bestand (${bottles.size})") },
+                actions = {
+                    TextButton(onClick = {
+                        val text = ShoppingList.format(bottles, LOW_STOCK_PERCENT, LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_SUBJECT, "Einkaufsliste Bar")
+                            putExtra(Intent.EXTRA_TEXT, text)
+                        }
+                        context.startActivity(Intent.createChooser(send, "Einkaufsliste teilen"))
+                    }) { Text("Einkaufsliste") }
+                },
+            )
+        },
         bottomBar = bottomBar,
         floatingActionButton = {
             Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -135,6 +158,7 @@ private fun BottleRow(b: Bottle, onClick: () -> Unit) {
                 b.category.takeIf { it.isNotBlank() },
                 "${b.sizeMl} ml",
                 b.abv?.let { "${formatAmount(it)} % vol" },
+                b.price?.let { formatEuro(it) },
             ).joinToString(" · ")
             Text(facts, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {

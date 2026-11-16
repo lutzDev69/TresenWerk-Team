@@ -37,15 +37,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import de.tresenwerk.app.data.Bottle
 import de.tresenwerk.app.data.Recipe
 import de.tresenwerk.app.data.RecipeWithIngredients
 import de.tresenwerk.app.data.tagList
+import de.tresenwerk.app.domain.Availability
 import de.tresenwerk.app.domain.RecipeFilter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeListScreen(
     recipes: List<RecipeWithIngredients>,
+    bottles: List<Bottle>,
     onOpen: (Long) -> Unit,
     onNew: () -> Unit,
     onToggleFavorite: (Recipe) -> Unit,
@@ -55,11 +58,18 @@ fun RecipeListScreen(
     var favoritesOnly by rememberSaveable { mutableStateOf(false) }
     var method by rememberSaveable { mutableStateOf<String?>(null) }
     var tag by rememberSaveable { mutableStateOf<String?>(null) }
+    var mixableOnly by rememberSaveable { mutableStateOf(false) }
+    val hasStock = bottles.isNotEmpty()
+    val missing = remember(recipes, bottles) {
+        if (bottles.isEmpty()) emptyMap() else recipes.associate { it.recipe.id to Availability.missing(it, bottles) }
+    }
+    val mixableCount = missing.count { it.value.isEmpty() }
 
     val methods = remember(recipes) { recipes.map { it.recipe.method.trim() }.filter { it.isNotEmpty() }.distinctBy { it.lowercase() }.sorted() }
     val tags = remember(recipes) { recipes.flatMap { it.recipe.tagList() }.distinctBy { it.lowercase() }.sorted() }
-    val shown = remember(recipes, query, favoritesOnly, method, tag) {
+    val shown = remember(recipes, query, favoritesOnly, method, tag, mixableOnly, missing) {
         RecipeFilter.apply(recipes, query, favoritesOnly, method, tag)
+            .filter { !mixableOnly || missing[it.recipe.id].isNullOrEmpty() }
     }
 
     Scaffold(
@@ -85,6 +95,15 @@ fun RecipeListScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                if (hasStock) {
+                    item {
+                        FilterChip(
+                            selected = mixableOnly,
+                            onClick = { mixableOnly = !mixableOnly },
+                            label = { Text("Kann ich mixen ($mixableCount)") },
+                        )
+                    }
+                }
                 item {
                     FilterChip(selected = favoritesOnly, onClick = { favoritesOnly = !favoritesOnly }, label = { Text("★ Favoriten") })
                 }
@@ -104,7 +123,12 @@ fun RecipeListScreen(
             } else {
                 LazyColumn(contentPadding = PaddingValues(bottom = 88.dp)) {
                     items(shown, key = { it.recipe.id }) { r ->
-                        RecipeRow(r, onClick = { onOpen(r.recipe.id) }, onToggleFavorite = { onToggleFavorite(r.recipe) })
+                        RecipeRow(
+                            r,
+                            missing = missing[r.recipe.id].orEmpty(),
+                            onClick = { onOpen(r.recipe.id) },
+                            onToggleFavorite = { onToggleFavorite(r.recipe) },
+                        )
                     }
                 }
             }
@@ -113,7 +137,7 @@ fun RecipeListScreen(
 }
 
 @Composable
-private fun RecipeRow(data: RecipeWithIngredients, onClick: () -> Unit, onToggleFavorite: () -> Unit) {
+private fun RecipeRow(data: RecipeWithIngredients, missing: List<String>, onClick: () -> Unit, onToggleFavorite: () -> Unit) {
     val r = data.recipe
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 16.dp, vertical = 8.dp),
@@ -134,6 +158,15 @@ private fun RecipeRow(data: RecipeWithIngredients, onClick: () -> Unit, onToggle
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
+            if (missing.isNotEmpty()) {
+                Text(
+                    "Fehlt: " + missing.joinToString(", "),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = LowStock,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
         IconButton(onClick = onToggleFavorite) {
             Icon(

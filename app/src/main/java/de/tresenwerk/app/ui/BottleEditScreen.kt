@@ -93,6 +93,7 @@ fun BottleEditScreen(
     var sizeText by remember { mutableStateOf((initial?.sizeMl ?: 700).toString()) }
     var abvText by remember { mutableStateOf(initial?.abv?.let(::formatAmount) ?: "") }
     var barcode by remember { mutableStateOf(initial?.barcode ?: "") }
+    var priceText by remember { mutableStateOf(initial?.price?.let(::formatAmount) ?: "") }
     var fill by remember { mutableFloatStateOf((initial?.fillPercent ?: 100).toFloat()) }
     var notes by remember { mutableStateOf(initial?.notes ?: "") }
     var labelText by remember { mutableStateOf(initial?.labelText ?: "") }
@@ -242,6 +243,7 @@ fun BottleEditScreen(
         notes = b.notes
         if (b.labelText.isNotBlank()) labelText = b.labelText
         barcode = b.barcode ?: barcode
+        b.price?.let { priceText = formatAmount(it) }
         if (photoPath == null) photoPath = b.photoPath
         match = null
         scanMessage = "Vorhandene Flasche übernommen. Jetzt den Füllstand messen und speichern."
@@ -258,6 +260,7 @@ fun BottleEditScreen(
         abvText = b.abv?.let(::formatAmount) ?: abvText
         if (b.labelText.isNotBlank()) labelText = b.labelText
         barcode = b.barcode ?: barcode
+        b.price?.let { priceText = formatAmount(it) }
         fill = 100f
         match = null
         matchDismissed = true
@@ -293,6 +296,7 @@ fun BottleEditScreen(
                 labelText = labelText,
                 photoPath = photoPath,
                 barcode = barcode.trim().ifEmpty { null },
+                price = priceText.trim().replace(',', '.').toDoubleOrNull()?.takeIf { it >= 0 },
             ),
         )
     }
@@ -427,6 +431,12 @@ fun BottleEditScreen(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 )
             }
+            OutlinedTextField(
+                priceText, { priceText = it.filter { c -> c.isDigit() || c == ',' || c == '.' } }, Modifier.fillMaxWidth(),
+                label = { Text("Einkaufspreis pro Flasche (€)") }, singleLine = true,
+                supportingText = { Text("Für die Kosten pro Drink in den Rezepten") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            )
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedTextField(
                     barcode, { barcode = it.filter(Char::isDigit) }, Modifier.weight(1f),

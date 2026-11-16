@@ -140,6 +140,7 @@ private fun TresenWerkApp(vm: MainViewModel = viewModel()) {
             val list = recipes
             if (list == null) Loading() else RecipeListScreen(
                 recipes = list,
+                bottles = bottles ?: emptyList(),
                 onOpen = { go(Screen.RecipeDetail(it)) },
                 onNew = { go(Screen.RecipeEdit(null)) },
                 onToggleFavorite = vm::toggleFavorite,

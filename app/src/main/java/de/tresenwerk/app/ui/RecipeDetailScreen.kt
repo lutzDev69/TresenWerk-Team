@@ -55,7 +55,11 @@ import de.tresenwerk.app.data.Bottle
 import de.tresenwerk.app.data.RecipeWithIngredients
 import de.tresenwerk.app.data.displayName
 import de.tresenwerk.app.data.tagList
+import de.tresenwerk.app.domain.Availability
 import de.tresenwerk.app.domain.BatchCalculator
+import de.tresenwerk.app.domain.CostResult
+import de.tresenwerk.app.domain.Costing
+import de.tresenwerk.app.domain.formatEuro
 import de.tresenwerk.app.domain.Measure
 import de.tresenwerk.app.domain.Stock
 import de.tresenwerk.app.domain.formatAmount
@@ -157,6 +161,8 @@ fun RecipeDetailScreen(
                                 color = if (bottle.fillPercent <= 20) LowStock else MaterialTheme.colorScheme.secondary,
                                 textAlign = TextAlign.End,
                             )
+                        } else if (bottles.isNotEmpty() && !Availability.isPantry(line.name)) {
+                            Text("nicht im Bestand", style = MaterialTheme.typography.labelSmall, color = LowStock)
                         }
                     }
                 }
@@ -173,6 +179,10 @@ fun RecipeDetailScreen(
                 total = batch.total,
                 water = batch.water,
             )
+
+            if (bottles.isNotEmpty()) {
+                CostCard(Costing.calculate(data.ingredients, bottles), portions)
+            }
 
             if (r.instructions.isNotBlank()) {
                 SectionTitle("Zubereitung")
@@ -226,6 +236,58 @@ private fun BatchCard(
                 }
                 Text(summary, color = MaterialTheme.colorScheme.secondary)
             }
+        }
+    }
+}
+
+/** Wareneinsatz pro Drink aus den Flaschenpreisen, plus Richtwert für den Verkaufspreis. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun CostCard(cost: CostResult, portions: Int) {
+    var target by rememberSaveable { mutableIntStateOf(20) }
+    val targets = listOf(15, 20, 25, 30)
+    Card {
+        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Kosten pro Drink", style = MaterialTheme.typography.titleSmall)
+            if (cost.lines.none { it.cost != null }) {
+                Text(
+                    "Trage bei den Flaschen im Bestand einen Einkaufspreis ein, dann rechnet die App hier den Wareneinsatz aus.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                return@Column
+            }
+            cost.lines.filter { it.cost != null }.forEach { line ->
+                Row {
+                    Text(line.name, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                    Text(formatEuro(line.cost!!), style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+            Row {
+                Text("Wareneinsatz", Modifier.weight(1f), fontWeight = FontWeight.Bold)
+                Text(formatEuro(cost.total), fontWeight = FontWeight.Bold)
+            }
+            if (portions > 1) {
+                Text("Für $portions Drinks: ${formatEuro(cost.total * portions)}", color = MaterialTheme.colorScheme.secondary)
+            }
+            if (cost.withoutPrice.isNotEmpty()) {
+                Text(
+                    "Ohne Preis: " + cost.withoutPrice.joinToString(", "),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Text("Verkaufspreis-Richtwert (netto) bei Wareneinsatz von", style = MaterialTheme.typography.labelLarge)
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
+                targets.forEachIndexed { i, t ->
+                    SegmentedButton(
+                        selected = target == t,
+                        onClick = { target = t },
+                        shape = SegmentedButtonDefaults.itemShape(i, targets.size),
+                    ) { Text("$t %") }
+                }
+            }
+            Text(formatEuro(cost.sellingPrice(target.toDouble())), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.primary)
         }
     }
 }
