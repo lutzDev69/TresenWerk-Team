@@ -1,0 +1,6 @@
+<resources>
+    <!-- Basis-Theme ohne Titelleiste; Farben kommen aus Compose (ui/Theme.kt). -->
+    <style name="Theme.TresenWerk" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#14110F</item>
+    </style>
+</resources>
