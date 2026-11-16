@@ -74,9 +74,16 @@ object InventoryCsv {
     private fun number(value: Double, decimals: Int): String =
         String.format(Locale.GERMANY, "%.${decimals}f", value)
 
-    /** Felder mit Semikolon, Anführungszeichen oder Zeilenumbruch in Anführungszeichen setzen. */
-    private fun escape(field: String): String =
-        if (field.any { it == ';' || it == '"' || it == '\n' || it == '\r' }) "\"" + field.replace("\"", "\"\"") + "\"" else field
+    /**
+     * Felder absichern:
+     * - Beginnt ein Feld mit = + - @ (oder Tab/CR), würde Excel es als Formel ausführen ("CSV-Injection").
+     *   Ein vorangestelltes ' lässt Excel es als Text anzeigen. Unsere Zahlen sind nie negativ, sind also nicht betroffen.
+     * - Felder mit Semikolon, Anführungszeichen oder Zeilenumbruch in Anführungszeichen setzen.
+     */
+    internal fun escape(raw: String): String {
+        val field = if (raw.isNotEmpty() && raw[0] in "=+-@\t\r") "'$raw" else raw
+        return if (field.any { it == ';' || it == '"' || it == '\n' || it == '\r' }) "\"" + field.replace("\"", "\"\"") + "\"" else field
+    }
 }
 
 private val stampFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")

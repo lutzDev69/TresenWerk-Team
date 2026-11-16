@@ -77,15 +77,15 @@ object Backup {
         val now = System.currentTimeMillis()
         val recipes = root.optJSONArray("recipes").objects().map { o ->
             val recipe = Recipe(
-                name = o.getString("name"),
-                category = o.optString("category"),
-                glass = o.optString("glass"),
-                ice = o.optString("ice"),
-                method = o.optString("method"),
-                garnish = o.optString("garnish"),
-                instructions = o.optString("instructions"),
-                notes = o.optString("notes"),
-                tags = o.optString("tags"),
+                name = o.getString("name").take(MAX_SHORT),
+                category = o.text("category"),
+                glass = o.text("glass"),
+                ice = o.text("ice"),
+                method = o.text("method"),
+                garnish = o.text("garnish"),
+                instructions = o.text("instructions", MAX_LONG),
+                notes = o.text("notes", MAX_LONG),
+                tags = o.text("tags", MAX_LONG),
                 isFavorite = o.optBoolean("favorite"),
                 photoPath = o.photo(),
                 createdAt = o.optLong("createdAt", now),
@@ -94,32 +94,41 @@ object Backup {
             val ingredients = o.optJSONArray("ingredients").objects().mapIndexed { i, io ->
                 Ingredient(
                     position = i,
-                    name = io.getString("name"),
-                    amount = if (io.isNull("amount")) null else io.optDouble("amount").takeUnless { it.isNaN() },
-                    unit = io.optString("unit"),
+                    name = io.getString("name").take(MAX_SHORT),
+                    amount = io.decimal("amount", 0.0..100_000.0),
+                    unit = io.text("unit", 20),
                 )
             }
             RecipeWithIngredients(recipe, ingredients)
         }
         val bottles = root.optJSONArray("bottles").objects().map { o ->
             Bottle(
-                name = o.getString("name"),
-                brand = o.optString("brand"),
-                category = o.optString("category"),
-                sizeMl = o.optInt("sizeMl", 700),
-                fillPercent = o.optInt("fillPercent", 100),
-                bottleCount = o.optInt("bottleCount", 1).coerceAtLeast(0),
-                abv = if (o.isNull("abv")) null else o.optDouble("abv").takeUnless { it.isNaN() },
-                labelText = o.optString("labelText"),
-                notes = o.optString("notes"),
+                name = o.getString("name").take(MAX_SHORT),
+                brand = o.text("brand"),
+                category = o.text("category"),
+                sizeMl = o.optInt("sizeMl", 700).takeIf { it in 1..20_000 } ?: 700,
+                fillPercent = o.optInt("fillPercent", 100).coerceIn(0, 100),
+                bottleCount = o.optInt("bottleCount", 1).coerceIn(0, 999),
+                abv = o.decimal("abv", 0.0..100.0),
+                labelText = o.text("labelText", MAX_LONG),
+                notes = o.text("notes", MAX_LONG),
                 updatedAt = o.optLong("updatedAt", now),
-                barcode = if (o.isNull("barcode")) null else o.optString("barcode").ifBlank { null },
-                price = if (o.isNull("price")) null else o.optDouble("price").takeUnless { it.isNaN() },
+                barcode = if (o.isNull("barcode")) null else o.optString("barcode").filter(Char::isDigit).take(14).ifBlank { null },
+                price = o.decimal("price", 0.0..100_000.0),
                 photoPath = o.photo(),
             )
         }
         return recipes to bottles
     }
+
+    // Sinnvolle Bereiche – Werte aus einer (evtl. manipulierten) Sicherung werden darauf begrenzt
+    private const val MAX_SHORT = 200
+    private const val MAX_LONG = 10_000
+
+    private fun JSONObject.text(key: String, max: Int = MAX_SHORT): String = optString(key).take(max)
+
+    private fun JSONObject.decimal(key: String, range: ClosedFloatingPointRange<Double>): Double? =
+        if (isNull(key)) null else optDouble(key).takeIf { !it.isNaN() && it in range }
 
     private fun JSONObject.photo(): String? = if (isNull("photo")) null else optString("photo").ifBlank { null }
 

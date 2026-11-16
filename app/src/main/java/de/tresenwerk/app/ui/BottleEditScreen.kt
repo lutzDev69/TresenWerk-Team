@@ -433,14 +433,16 @@ fun BottleEditScreen(
                 supportingText = { Text("Für die Kosten pro Drink in den Rezepten") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    barcode, { barcode = it.filter(Char::isDigit) }, Modifier.weight(1f),
-                    label = { Text("Barcode (EAN)") }, singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                )
-                FilledTonalButton(onClick = { lookupBarcode(barcode) }, enabled = barcode.length >= 8 && busy == null) {
-                    Text("Nachschlagen")
+            OutlinedTextField(
+                barcode, { barcode = it.filter(Char::isDigit) }, Modifier.fillMaxWidth(),
+                label = { Text("Barcode (EAN)") }, singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            )
+            // Scannen auch hier anbieten – der Knopf oben ist nach dem Ausfüllen oft nicht mehr im Bild
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = ::scanBarcode, enabled = busy == null) { Text("▥  Barcode scannen") }
+                if (barcode.length >= 8) {
+                    FilledTonalButton(onClick = { lookupBarcode(barcode) }, enabled = busy == null) { Text("Nachschlagen") }
                 }
             }
 

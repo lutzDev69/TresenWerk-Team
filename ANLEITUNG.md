@@ -2,7 +2,7 @@
 
 Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf dem Gerät (kein Konto). Internet wird nur für die Barcode-Abfrage gebraucht.
 
-## Funktionen (Version 0.5)
+## Funktionen (Version 0.5.2)
 
 - **Rezepte**: Name, Zutaten mit Menge und Einheit (ml, cl, oz, Dash, Tropfen, Barlöffel, Stück, Auffüllen), Methode, Glas, Eis, Garnitur, Kategorie, Tags, Zubereitung, Notizen, Foto
 - **Suche & Filter**: Volltextsuche (mehrere Wörter = alle müssen vorkommen), Filter nach Favoriten, Methode und Tag
@@ -106,6 +106,17 @@ google-chrome --headless=new --no-pdf-header-footer --print-to-pdf=dist/TresenWe
 **Einrichtung auf einem neuen Rechner:** Schlüssel nach `keys/` kopieren, `keystore.properties.example`
 als `keystore.properties` kopieren und Passwort bei `storePassword` und `keyPassword` eintragen (beide gleich).
 
+## Sicherheit und Datenschutz
+
+- Ins Internet geht nur die Barcode-Nummer (an Open Food Facts, verschlüsselt). Googles Nutzungsstatistik von ML Kit
+  ist im `AndroidManifest.xml` entfernt (`tools:node="remove"`) – beim Scannen erscheint im Protokoll dafür
+  „Transport backend 'cct' is not registered“, das ist gewollt.
+- Inventur-CSV: Felder, die mit `=`, `+`, `-` oder `@` beginnen, bekommen ein `'` vorangestellt (Schutz vor Excel-Formeln).
+- Sicherung einlesen: Größengrenzen (20 MB Daten, 20 MB pro Foto, 1 GB gesamt, 10.000 Einträge), Werte werden auf
+  sinnvolle Bereiche begrenzt, nur einfache Bild-Dateinamen werden übernommen.
+- Erkannter Etikett-Text wird nur in der Entwicklerversion ins Systemprotokoll geschrieben.
+- Exportierte Sicherungen/Inventuren sind unverschlüsselt (inkl. Einkaufspreisen) – sicher aufbewahren.
+
 ## Tipps zur Bedienung
 
 - **Schreibschrift-Logos** (z. B. Friedrichs) liest die Texterkennung oft falsch. Solche unsicheren Zeilen schlägt die App nicht mehr als Name vor – dann den Barcode scannen oder den Namen einmal eintippen.
@@ -114,7 +125,7 @@ als `keystore.properties` kopieren und Passwort bei `storePassword` und `keyPass
 - **Inventur für den Steuerberater**: „Daten → Inventur als CSV exportieren“ – alle Flaschen mit vollen/angebrochenen Flaschen, Bestand, Einkaufspreis netto, Warenwert und Summe; öffnet direkt in deutschem Excel. Angebrochene Flaschen anteilig bewertet, Flaschen ohne Preis mit Hinweis
 - **Sicherung**: regelmäßig unter „Daten“ erstellen – bei Deinstallation der App sind sonst alle Daten weg.
 
-## Grenzen der Version 0.5
+## Grenzen der Version 0.5.2
 
 - Der Füllstand wird nicht automatisch erkannt, sondern mit den Linien gemessen.
 - Kleine Marken fehlen oft in Open Food Facts; dann Name einmal selbst eintragen.

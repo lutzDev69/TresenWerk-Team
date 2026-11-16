@@ -1,6 +1,7 @@
 package de.tresenwerk.app.scan
 
 import android.content.Context
+import android.content.pm.ApplicationInfo
 import android.net.Uri
 import android.util.Log
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
@@ -37,7 +38,10 @@ object LabelScanner {
                             .flatMap { it.lines }
                             .sortedByDescending { it.boundingBox?.height() ?: 0 }
                             .filter { it.text.isNotBlank() }
-                        lines.forEach { Log.d("TresenWerk", "OCR %.2f  %s".format(it.confidence, it.text)) }
+                        // Erkannten Text nur in der Entwicklerversion ins Systemprotokoll schreiben
+                        if (context.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0) {
+                            lines.forEach { Log.d("TresenWerk", "OCR %.2f  %s".format(it.confidence, it.text)) }
+                        }
                         cont.resume(
                             OcrResult(
                                 lines = lines.map { it.text.trim() }.distinct(),

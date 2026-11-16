@@ -7,6 +7,9 @@ import java.io.OutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import de.tresenwerk.app.util.TooLargeException
+import de.tresenwerk.app.util.copyAtMost
+import de.tresenwerk.app.util.readAtMost
 
 /**
  * ZIP-Sicherung: "backup.json" plus alle Fotos im Ordner "photos/".
@@ -14,6 +17,14 @@ import java.util.zip.ZipOutputStream
  */
 object BackupArchive {
     const val JSON_ENTRY = "backup.json"
+
+    /** Obergrenzen beim Einlesen – schützen vor manipulierten Dateien, die den Speicher füllen würden. */
+    data class Limits(
+        val maxJsonBytes: Long = 20_000_000,
+        val maxPhotoBytes: Long = 20_000_000,
+        val maxTotalBytes: Long = 1_000_000_000,
+        val maxEntries: Int = 10_000,
+    )
 
     /** Schreibt die Sicherung. Fehlende Fotodateien werden übersprungen. Gibt die Zahl der Fotos zurück. */
     fun write(out: OutputStream, json: String, photos: List<File>): Int {
@@ -41,29 +52,37 @@ object BackupArchive {
      * Liest eine ZIP- oder JSON-Sicherung. Fotos werden nach [tempDir] entpackt.
      * Nur einfache Dateinamen mit Bildendung werden angenommen (Schutz gegen manipulierte Archive).
      */
-    fun read(input: InputStream, tempDir: File): Content {
+    fun read(input: InputStream, tempDir: File, limits: Limits = Limits()): Content {
         val buffered = BufferedInputStream(input)
         buffered.mark(4)
         val isZip = buffered.read() == 'P'.code && buffered.read() == 'K'.code
         buffered.reset()
-        if (!isZip) return Content(buffered.readBytes().decodeToString(), emptyMap())
+        if (!isZip) return Content(buffered.readAtMost(limits.maxJsonBytes, "Die Sicherung").decodeToString(), emptyMap())
 
         tempDir.mkdirs()
         var json: String? = null
         val photos = mutableMapOf<String, File>()
+        var entries = 0
+        var totalBytes = 0L
         ZipInputStream(buffered).use { zip ->
             while (true) {
                 val entry = zip.nextEntry ?: break
+                if (++entries > limits.maxEntries) throw TooLargeException("Die Sicherung (zu viele Einträge)", limits.maxTotalBytes)
                 val name = entry.name
                 when {
                     entry.isDirectory -> Unit
-                    name == JSON_ENTRY -> json = zip.readBytes().decodeToString()
+                    name == JSON_ENTRY -> {
+                        val bytes = zip.readAtMost(limits.maxJsonBytes, "backup.json")
+                        totalBytes += bytes.size
+                        json = bytes.decodeToString()
+                    }
                     name.startsWith(Backup.PHOTO_FOLDER) && isSafePhotoName(name.removePrefix(Backup.PHOTO_FOLDER)) -> {
                         val target = File(tempDir, name.removePrefix(Backup.PHOTO_FOLDER))
-                        target.outputStream().use { zip.copyTo(it) }
+                        totalBytes += target.outputStream().use { zip.copyAtMost(it, limits.maxPhotoBytes, "Ein Foto in der Sicherung") }
                         photos[name] = target
                     }
                 }
+                if (totalBytes > limits.maxTotalBytes) throw TooLargeException("Die Sicherung", limits.maxTotalBytes)
                 zip.closeEntry()
             }
         }

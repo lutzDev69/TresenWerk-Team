@@ -5,6 +5,7 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import de.tresenwerk.app.util.readAtMost
 
 data class ProductInfo(
     val name: String?,
@@ -36,7 +37,7 @@ object ProductLookup {
             conn.readTimeout = 8000
             conn.setRequestProperty("User-Agent", "TresenWerk/0.2 (Android)")
             when (val code = conn.responseCode) {
-                200 -> parse(conn.inputStream.use { it.readBytes().decodeToString() })
+                200 -> parse(conn.inputStream.use { it.readAtMost(2_000_000, "Die Antwort").decodeToString() })
                     ?.let { Result.Found(it) } ?: Result.NotFound
                 404 -> Result.NotFound
                 else -> Result.Failed("Server antwortet mit $code")
@@ -53,9 +54,9 @@ object ProductLookup {
         val root = JSONObject(json)
         if (root.optInt("status") != 1) return null
         val p = root.optJSONObject("product") ?: return null
-        val brand = p.optString("brands").split(',').map { it.trim() }.firstOrNull { it.isNotEmpty() }
+        val brand = p.optString("brands").take(500).split(',').map { it.trim().take(200) }.firstOrNull { it.isNotEmpty() }
         val name = listOf("product_name_de", "product_name", "generic_name")
-            .map { p.optString(it).trim() }
+            .map { p.optString(it).trim().take(200) }
             .firstOrNull { it.isNotEmpty() }
         val abv = p.optJSONObject("nutriments")?.let { n ->
             listOf("alcohol_value", "alcohol", "alcohol_100g")

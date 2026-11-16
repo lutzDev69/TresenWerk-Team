@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Nur für die Barcode-Abfrage bei Open Food Facts (es wird nur die Barcode-Nummer gesendet) -->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -33,6 +34,19 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Datenschutz: ML Kit (Texterkennung/Barcode) bringt Googles "datatransport" mit, das Nutzungs-
+             statistiken an Google sendet. Ohne diese drei Bausteine wird nichts gesendet; die Erkennung
+             selbst läuft weiter komplett auf dem Gerät. -->
+        <service
+            android:name="com.google.android.datatransport.runtime.backends.TransportBackendDiscovery"
+            tools:node="remove" />
+        <service
+            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.JobInfoSchedulerService"
+            tools:node="remove" />
+        <receiver
+            android:name="com.google.android.datatransport.runtime.scheduling.jobscheduling.AlarmManagerSchedulerBroadcastReceiver"
+            tools:node="remove" />
 
         <!-- Gibt der Kamera-App einen Speicherort für das neue Foto -->
         <provider
