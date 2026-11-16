@@ -102,4 +102,5 @@ Eine Tabelle aller Dateien mit Erklärung steht in [ANLEITUNG.md](ANLEITUNG.md#p
 | Datei | Für wen |
 |---|---|
 | [ANLEITUNG.md](ANLEITUNG.md) | Entwicklung: Aufbau, Bauen, Release, Sicherheit, Grenzen |
+| [docs/Konzept-Serveranbindung.md](docs/Konzept-Serveranbindung.md) | Entwurf: gemeinsame Daten über einen Webspace mit Benutzerverwaltung |
 | [docs/Kurzanleitung.html](docs/Kurzanleitung.html) | Tester und Nutzer – als PDF mit Chrome erzeugbar (Befehl in der ANLEITUNG) |
