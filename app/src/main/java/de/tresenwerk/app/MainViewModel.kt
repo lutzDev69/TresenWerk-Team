@@ -12,6 +12,8 @@ import de.tresenwerk.app.data.Ingredient
 import de.tresenwerk.app.data.Recipe
 import de.tresenwerk.app.data.RecipeWithIngredients
 import de.tresenwerk.app.data.SampleRecipes
+import de.tresenwerk.app.domain.InventoryCsv
+import de.tresenwerk.app.domain.formatEuro
 import de.tresenwerk.app.util.Photos
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.time.LocalDate
 import java.util.UUID
 
 /** Bindeglied zwischen Bildschirmen und Datenbank. */
@@ -100,6 +103,25 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
                 }
                 "Gesichert: ${recipes.size} Rezepte, ${bottles.size} Flaschen, $photoCount Fotos."
             }.getOrElse { "Export fehlgeschlagen: ${it.message}" }
+            onResult(message)
+        }
+    }
+
+    /** Schreibt die Inventurliste (CSV für den Steuerberater) zum Stichtag [date]. */
+    fun exportInventory(target: Uri, date: LocalDate, onResult: (String) -> Unit) {
+        viewModelScope.launch {
+            val message = runCatching {
+                val bottles = bottleDao.getAll()
+                val csv = InventoryCsv.build(bottles, date)
+                withContext(Dispatchers.IO) {
+                    app.contentResolver.openOutputStream(target, "wt")?.use { it.write(csv.toByteArray(Charsets.UTF_8)) }
+                        ?: error("Datei lässt sich nicht schreiben")
+                }
+                val total = InventoryCsv.rows(bottles).sumOf { it.value ?: 0.0 }
+                val missing = InventoryCsv.rows(bottles).count { it.bottle.price == null && it.stockBottles > 0 }
+                "Inventur exportiert: ${bottles.size} Positionen, Warenwert netto ${formatEuro(total)}" +
+                    (if (missing > 0) " ($missing ohne Preis)." else ".")
+            }.getOrElse { "Inventur-Export fehlgeschlagen: ${it.message}" }
             onResult(message)
         }
     }

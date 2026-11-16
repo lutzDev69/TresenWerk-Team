@@ -22,6 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.time.LocalDate
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import de.tresenwerk.app.domain.InventoryCsv
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,10 +37,16 @@ fun DataScreen(
     onExport: (Uri) -> Unit,
     onImport: (Uri) -> Unit,
     onAddSamples: () -> Unit,
+    onExportInventory: (Uri, LocalDate) -> Unit,
     bottomBar: @Composable () -> Unit,
 ) {
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
         if (uri != null) onExport(uri)
+    }
+    // Stichtag merken, solange der Speichern-Dialog offen ist
+    var inventoryDate by remember { mutableStateOf(LocalDate.now()) }
+    val inventoryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
+        if (uri != null) onExportInventory(uri, inventoryDate)
     }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) onImport(uri)
@@ -69,6 +80,21 @@ fun DataScreen(
             }
             Text(
                 "Beim Einlesen werden Einträge samt Fotos hinzugefügt; Rezepte/Flaschen mit gleichem Namen werden übersprungen. Ältere JSON-Sicherungen (ohne Fotos) lassen sich weiterhin einlesen.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            SectionTitle("Inventur für den Steuerberater")
+            Text(
+                "Erstellt eine CSV-Datei (öffnet direkt in Excel) mit allen Flaschen: volle und angebrochene Flaschen, Bestand, Einkaufspreis netto und Warenwert, dazu die Gesamtsumme. Stichtag ist heute.",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+            Button(onClick = {
+                inventoryDate = LocalDate.now()
+                inventoryLauncher.launch(InventoryCsv.fileName(inventoryDate))
+            }) { Text("Inventur als CSV exportieren") }
+            Text(
+                "Angebrochene Flaschen werden anteilig nach Füllstand bewertet. Flaschen ohne Preis stehen mit Hinweis in der Liste, zählen aber nicht zur Summe.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

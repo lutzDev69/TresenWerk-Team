@@ -2,7 +2,7 @@
 
 Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf dem Gerät (kein Konto). Internet wird nur für die Barcode-Abfrage gebraucht.
 
-## Funktionen (Version 0.4)
+## Funktionen (Version 0.5)
 
 - **Rezepte**: Name, Zutaten mit Menge und Einheit (ml, cl, oz, Dash, Tropfen, Barlöffel, Stück, Auffüllen), Methode, Glas, Eis, Garnitur, Kategorie, Tags, Zubereitung, Notizen, Foto
 - **Suche & Filter**: Volltextsuche (mehrere Wörter = alle müssen vorkommen), Filter nach Favoriten, Methode und Tag
@@ -17,6 +17,7 @@ Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf d
 - **Was kann ich mixen?**: Filter „Kann ich mixen“ in der Rezeptliste; bei den anderen Rezepten steht, was fehlt. Frische Zutaten und Grundvorrat (Saft, Sirup, Soda, Minze, Ei …) gelten als vorhanden
 - **Einkaufsliste**: „Einkaufsliste“ oben im Bar-Bestand teilt alle Flaschen mit ≤ 20 % als Liste (nach Sorte, mit letztem Preis)
 - **Kosten pro Drink**: Einkaufspreis bei der Flasche eintragen → im Rezept Wareneinsatz pro Drink und Verkaufspreis-Richtwert bei 15–30 % Wareneinsatz
+- **Inventur für den Steuerberater**: „Daten → Inventur als CSV exportieren“ – alle Flaschen mit vollen/angebrochenen Flaschen, Bestand, Einkaufspreis netto, Warenwert und Summe; öffnet direkt in deutschem Excel. Angebrochene Flaschen anteilig bewertet, Flaschen ohne Preis mit Hinweis
 - **Sicherung**: Export/Import als ZIP-Datei mit allen Fotos (ältere JSON-Sicherungen lassen sich weiter einlesen), Rezept als Text teilen
 
 ## Projektaufbau (was ist was?)
@@ -38,6 +39,7 @@ Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf d
 | `.../domain/Search.kt` | Rezeptsuche, Zuordnung Zutat → Flasche, „Kann ich mixen?“ |
 | `.../domain/Costing.kt` | Kosten pro Drink aus Flaschenpreisen |
 | `.../domain/ShoppingList.kt` | Einkaufsliste als Text |
+| `.../domain/InventoryCsv.kt` | Inventurliste als CSV für den Steuerberater |
 | `.../scan/LabelScanner.kt` | Texterkennung und Barcode-Lesen auf dem Foto (ML Kit, offline) |
 | `.../scan/LabelParser.kt` | Erkennt im Text Name, Größe, % vol, Sorte; erkennt vorhandene Flaschen wieder |
 | `.../scan/ProductLookup.kt` | Barcode-Abfrage bei Open Food Facts |
@@ -109,9 +111,10 @@ als `keystore.properties` kopieren und Passwort bei `storePassword` und `keyPass
 - **Schreibschrift-Logos** (z. B. Friedrichs) liest die Texterkennung oft falsch. Solche unsicheren Zeilen schlägt die App nicht mehr als Name vor – dann den Barcode scannen oder den Namen einmal eintippen.
 - **Etikett scannen**: Flasche gerade und formatfüllend fotografieren, gutes Licht, keine Spiegelungen. Erkannte Textzeilen antippen, um Name oder Marke zu ergänzen.
 - **Füllstand**: Für die Messung die Flasche frontal auf Augenhöhe fotografieren. Grün = Innenboden, Blau = Höhe einer vollen Flasche (meist die Schulter), Gelb = Flüssigkeit. Die Rechnung ist linear; bei bauchigen Flaschen ist sie nur ein Richtwert.
+- **Inventur für den Steuerberater**: „Daten → Inventur als CSV exportieren“ – alle Flaschen mit vollen/angebrochenen Flaschen, Bestand, Einkaufspreis netto, Warenwert und Summe; öffnet direkt in deutschem Excel. Angebrochene Flaschen anteilig bewertet, Flaschen ohne Preis mit Hinweis
 - **Sicherung**: regelmäßig unter „Daten“ erstellen – bei Deinstallation der App sind sonst alle Daten weg.
 
-## Grenzen der Version 0.4
+## Grenzen der Version 0.5
 
 - Der Füllstand wird nicht automatisch erkannt, sondern mit den Linien gemessen.
 - Kleine Marken fehlen oft in Open Food Facts; dann Name einmal selbst eintragen.

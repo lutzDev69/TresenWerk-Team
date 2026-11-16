@@ -429,7 +429,7 @@ fun BottleEditScreen(
             }
             OutlinedTextField(
                 priceText, { priceText = it.filter { c -> c.isDigit() || c == ',' || c == '.' } }, Modifier.fillMaxWidth(),
-                label = { Text("Einkaufspreis pro Flasche (€)") }, singleLine = true,
+                label = { Text("Einkaufspreis netto pro Flasche (€)") }, singleLine = true,
                 supportingText = { Text("Für die Kosten pro Drink in den Rezepten") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             )
