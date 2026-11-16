@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TW-Monogramm: das T als Tresen (Bernstein), darunter das W.
+     Auf 72 % verkleinert, damit alles in der sicheren Zone liegt (Handys schneiden rund oder eckig zu). -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.72"
+        android:scaleY="0.72"
+        android:translateY="-3.24">
+        <!-- T: Tresen-Balken und Stiel -->
+        <path android:fillColor="#E0A84F" android:pathData="M26,30 h56 a2,2 0 0 1 2,2 v3 a2,2 0 0 1 -2,2 h-56 a2,2 0 0 1 -2,-2 v-3 a2,2 0 0 1 2,-2 z" />
+        <path android:fillColor="#E0A84F" android:pathData="M34,37 h7 v14 h-7 z" />
+        <!-- W -->
+        <path
+            android:pathData="M30,46 L40,78 L54,54 L68,78 L78,46"
+            android:strokeColor="#EDE6DF"
+            android:strokeWidth="6"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round" />
+        <!-- Fußleiste -->
+        <path android:fillColor="#8FBFA8" android:pathData="M25.5,84 h57 a1.5,1.5 0 0 1 0,3 h-57 a1.5,1.5 0 0 1 0,-3 z" />
+    </group>
+</vector>

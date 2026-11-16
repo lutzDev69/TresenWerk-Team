@@ -45,6 +45,8 @@ Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf d
 | `.../util/Photos.kt` | Fotos verkleinern, drehen, speichern, aufräumen |
 | `.../ui/*Screen.kt` | Die einzelnen Bildschirme |
 | `.../ui/FillLevelDialog.kt` | Füllstand-Messung am Foto |
+| `app/src/main/res/drawable/ic_launcher_*.xml` | App-Symbol (TW-Monogramm): Hintergrund, Vordergrund, einfarbige Variante |
+| `docs/logo/` | Logo als SVG und 512-px-Bild für den Play Store |
 | `app/src/test/...` | Automatische Tests (Batch, Suche, Etikett, Barcode, Füllstand, Sicherung) |
 
 ## App bauen und installieren
