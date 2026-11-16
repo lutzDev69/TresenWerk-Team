@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>TresenWerk – Kurzanleitung</title>
+<style>
+  @page { size: A4; margin: 14mm 14mm 12mm; }
+  :root { --amber: #b77a1c; --ink: #1d1a17; --muted: #5d554d; --line: #e6ddd2; --soft: #faf5ee; }
+  * { box-sizing: border-box; }
+  body { font-family: "DejaVu Sans", "Noto Sans", Arial, sans-serif; color: var(--ink); font-size: 9.6pt; line-height: 1.38; margin: 0; }
+  header { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2.5px solid var(--amber); padding-bottom: 6px; margin-bottom: 10px; }
+  h1 { font-size: 21pt; margin: 0; letter-spacing: .3px; }
+  h1 span { color: var(--amber); }
+  .sub { color: var(--muted); font-size: 9.5pt; }
+  .cols { column-count: 2; column-gap: 9mm; }
+  section { break-inside: avoid; margin: 0 0 9px; }
+  h2 { font-size: 11pt; color: var(--amber); margin: 0 0 3px; display: flex; gap: 6px; align-items: center; }
+  h2 .n { background: var(--amber); color: #fff; border-radius: 50%; width: 17px; height: 17px; font-size: 8.5pt; display: inline-flex; align-items: center; justify-content: center; }
+  p { margin: 0 0 4px; }
+  ul, ol { margin: 0 0 4px; padding-left: 15px; }
+  li { margin-bottom: 2px; }
+  b { font-weight: 700; }
+  .ui { background: var(--soft); border: 1px solid var(--line); border-radius: 4px; padding: 0 3px; white-space: nowrap; font-size: 9pt; }
+  .box { background: var(--soft); border-left: 3px solid var(--amber); padding: 6px 9px; border-radius: 3px; break-inside: avoid; margin-bottom: 9px; }
+  .warn { border-left-color: #c0483e; background: #fdf1ef; }
+  footer { margin-top: 6px; border-top: 1px solid var(--line); padding-top: 5px; color: var(--muted); font-size: 8.4pt; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tresen<span>Werk</span></h1>
+  <div class="sub">Kurzanleitung · Testversion 0.3 · Android 8 oder neuer</div>
+</header>
+
+<div class="box">
+  Deine Rezepte, dein Flaschenbestand und deine Kalkulation in einer App – ohne Konto, alles bleibt auf deinem Handy.
+  Unten hast du drei Bereiche: <span class="ui">Rezepte</span> <span class="ui">Bar</span> <span class="ui">Daten</span>.
+</div>
+
+<div class="cols">
+
+<section>
+  <h2><span class="n">1</span> Installieren</h2>
+  <ol>
+    <li>Die Datei <b>TresenWerk-0.3.apk</b> auf dem Handy antippen.</li>
+    <li>Fragt Android nach „Apps aus dieser Quelle“: einmal <b>erlauben</b>, zurück, <b>Installieren</b>.</li>
+    <li>Updates kommen genauso – einfach die neue Datei installieren, deine Daten bleiben.</li>
+  </ol>
+</section>
+
+<section>
+  <h2><span class="n">2</span> Rezepte</h2>
+  <ul>
+    <li><b>+</b> legt ein Rezept an: Zutaten mit ml, cl, oz, Dash, Barlöffel …, dazu Methode, Glas, Eis, Garnitur, Tags, Foto.</li>
+    <li>Zum Ausprobieren: <span class="ui">Daten</span> → <span class="ui">Klassiker hinzufügen</span>.</li>
+    <li><b>Suche</b> findet Name, Zutat und Tag; mehrere Wörter = alle müssen passen („gin limette“).</li>
+    <li>Filter: <span class="ui">★ Favoriten</span>, Methode, Tags – und <span class="ui">Kann ich mixen</span>.</li>
+    <li>Im Rezept: <b>Batch-Rechner</b> (Portionen, ml/cl/oz, Verdünnung für Pre-Batches) und <b>Teilen</b> als Text.</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">3</span> Flaschen erfassen</h2>
+  <ul>
+    <li><span class="ui">Bar</span> → <span class="ui">Etikett scannen</span>: Flasche frontal fotografieren. Größe, % vol und Sorte werden gelesen.</li>
+    <li><span class="ui">Barcode scannen</span>: holt Marke und Name aus der freien Datenbank Open Food Facts. Kennt sie die Flasche nicht, Namen einmal eintippen – beim nächsten Scan erkennt die App sie wieder.</li>
+    <li>Schreibschrift-Logos liest die Erkennung oft nicht – dann Barcode nutzen oder erkannte Textzeilen antippen.</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">4</span> Füllstand</h2>
+  <ul>
+    <li>Schieberegler – oder <span class="ui">Füllstand am Foto messen</span>: <b>grün</b> auf den Boden, <b>blau</b> auf „voll“ (Schulter), <b>gelb</b> auf die Flüssigkeit.</li>
+    <li>Flasche erneut scannen → <span class="ui">Vorhandene aktualisieren</span>. Zweite gleiche Flasche → <span class="ui">Zweite Flasche, gleiches Produkt</span>.</li>
+    <li><span class="ui">Einkaufsliste</span> (oben im Bestand) teilt alle Flaschen mit höchstens 20 %.</li>
+  </ul>
+</section>
+
+<section>
+  <h2><span class="n">5</span> Kosten pro Drink</h2>
+  <ul>
+    <li>Bei der Flasche den <b>Einkaufspreis</b> eintragen.</li>
+    <li>Im Rezept stehen dann Wareneinsatz pro Drink und ein Verkaufspreis-Richtwert (netto) bei 15–30 % Wareneinsatz.</li>
+    <li>Tipp: Zutaten so benennen wie Flasche oder Sorte („Campari“, „Gin“, „Bourbon“), dann findet die App sie im Bestand. Säfte, Sirups, Soda, Kräuter gelten als vorhanden.</li>
+  </ul>
+</section>
+
+<section class="box warn">
+  <h2 style="color:#c0483e">Wichtig: Sichern!</h2>
+  <p>Alles liegt nur auf deinem Handy. Wird die App gelöscht oder das Handy getauscht, ist es weg.</p>
+  <p><span class="ui">Daten</span> → <span class="ui">Sicherung erstellen</span> speichert Rezepte, Flaschen und Fotos als ZIP-Datei – z. B. in Google Drive. <span class="ui">Sicherung einlesen</span> holt sie zurück.</p>
+</section>
+
+<section>
+  <h2><span class="n">?</span> Datenschutz</h2>
+  <p>Kein Konto, keine Werbung, kein Tracking. Ins Internet geht nur die <b>Barcode-Nummer</b> beim Nachschlagen (an Open Food Facts). Fotos öffnen die normale Kamera-App.</p>
+</section>
+
+<section>
+  <h2><span class="n">!</span> Feedback</h2>
+  <p>Es ist eine Testversion – genau dein Feedback macht sie besser. Am hilfreichsten: <b>Screenshot</b> plus ein Satz, was du erwartet hättest. Auch Wünsche für fehlende Funktionen sind willkommen.</p>
+</section>
+
+</div>
+
+<footer>
+  <span>TresenWerk · Testversion für Profis hinter dem Tresen</span>
+  <span>Stand: November 2026</span>
+</footer>
+</body>
+</html>
