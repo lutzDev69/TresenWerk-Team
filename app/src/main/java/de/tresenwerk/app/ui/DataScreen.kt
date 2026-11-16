@@ -21,7 +21,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import java.time.LocalDate
+import java.time.LocalDateTime
+import de.tresenwerk.app.domain.fileStamp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,16 +38,16 @@ fun DataScreen(
     onExport: (Uri) -> Unit,
     onImport: (Uri) -> Unit,
     onAddSamples: () -> Unit,
-    onExportInventory: (Uri, LocalDate) -> Unit,
+    onExportInventory: (Uri, LocalDateTime) -> Unit,
     bottomBar: @Composable () -> Unit,
 ) {
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
         if (uri != null) onExport(uri)
     }
     // Stichtag merken, solange der Speichern-Dialog offen ist
-    var inventoryDate by remember { mutableStateOf(LocalDate.now()) }
+    var inventoryTime by remember { mutableStateOf(LocalDateTime.now()) }
     val inventoryLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
-        if (uri != null) onExportInventory(uri, inventoryDate)
+        if (uri != null) onExportInventory(uri, inventoryTime)
     }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) onImport(uri)
@@ -74,7 +75,7 @@ fun DataScreen(
                 "Speichert alle Rezepte, Flaschen und Fotos in einer ZIP-Datei, z. B. in Google Drive, Nextcloud oder auf einem USB-Stick.",
                 style = MaterialTheme.typography.bodyMedium,
             )
-            Button(onClick = { exportLauncher.launch("tresenwerk-${LocalDate.now()}.zip") }) { Text("Sicherung erstellen") }
+            Button(onClick = { exportLauncher.launch("tresenwerk-${fileStamp(LocalDateTime.now())}.zip") }) { Text("Sicherung erstellen") }
             OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "application/json", "application/octet-stream", "text/plain")) }) {
                 Text("Sicherung einlesen")
             }
@@ -90,8 +91,8 @@ fun DataScreen(
                 style = MaterialTheme.typography.bodyMedium,
             )
             Button(onClick = {
-                inventoryDate = LocalDate.now()
-                inventoryLauncher.launch(InventoryCsv.fileName(inventoryDate))
+                inventoryTime = LocalDateTime.now()
+                inventoryLauncher.launch(InventoryCsv.fileName(inventoryTime))
             }) { Text("Inventur als CSV exportieren") }
             Text(
                 "Angebrochene Flaschen werden anteilig nach Füllstand bewertet. Flaschen ohne Preis stehen mit Hinweis in der Liste, zählen aber nicht zur Summe.",

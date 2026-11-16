@@ -168,7 +168,7 @@ private fun TresenWerkApp(vm: MainViewModel = viewModel()) {
                 onExport = { vm.export(it) { msg -> message = msg } },
                 onImport = { vm.import(it) { msg -> message = msg } },
                 onAddSamples = { vm.addSamples { msg -> message = msg } },
-                onExportInventory = { uri, date -> vm.exportInventory(uri, date) { msg -> message = msg } },
+                onExportInventory = { uri, at -> vm.exportInventory(uri, at) { msg -> message = msg } },
                 bottomBar = bottomBar,
             )
         }

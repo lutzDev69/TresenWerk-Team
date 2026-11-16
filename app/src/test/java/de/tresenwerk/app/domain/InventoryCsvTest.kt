@@ -4,7 +4,7 @@ import de.tresenwerk.app.data.Bottle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
-import java.time.LocalDate
+import java.time.LocalDateTime
 
 class InventoryCsvTest {
     private val bottles = listOf(
@@ -13,13 +13,13 @@ class InventoryCsvTest {
         Bottle(name = "Hausmarke; \"Spezial\"", category = "Rum", sizeMl = 700, fillPercent = 100, bottleCount = 1),
         Bottle(name = "Leer", category = "Gin", sizeMl = 700, fillPercent = 80, bottleCount = 0, price = 20.0),
     )
-    private val csv = InventoryCsv.build(bottles, LocalDate.of(2026, 12, 31))
+    private val csv = InventoryCsv.build(bottles, LocalDateTime.of(2026, 12, 31, 18, 5, 9))
     private val lines = csv.removePrefix("﻿").split("\r\n")
 
     @Test
     fun excelFriendlyFormat() {
         assertTrue(csv.startsWith("﻿"))
-        assertEquals("Inventur Flaschenbestand;Stichtag;31.12.2026", lines[0])
+        assertEquals("Inventur Flaschenbestand;Stichtag;31.12.2026;Erstellt um;18:05", lines[0])
         assertTrue(lines[2].startsWith("Sorte;Marke;Produkt;Flaschengröße (ml)"))
     }
 
@@ -38,5 +38,12 @@ class InventoryCsvTest {
     fun totalAndWarning() {
         assertTrue(lines.any { it == "Summe Warenwert netto (€);;;;;;;;;;54,60;" })
         assertTrue(lines.any { it.startsWith("Achtung: 1 Position(en) ohne Einkaufspreis") })
+    }
+
+    @Test
+    fun fileNamesContainTime() {
+        val at = LocalDateTime.of(2026, 11, 16, 15, 44, 7)
+        assertEquals("tresenwerk-inventur-2026-11-16_15-44-07.csv", InventoryCsv.fileName(at))
+        assertEquals("2026-11-16_15-44-07", fileStamp(at))
     }
 }

@@ -1,7 +1,7 @@
 package de.tresenwerk.app.domain
 
 import de.tresenwerk.app.data.Bottle
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -13,6 +13,7 @@ import java.util.Locale
  */
 object InventoryCsv {
     private val dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    private val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
 
     val header = listOf(
         "Sorte", "Marke", "Produkt", "Flaschengröße (ml)", "Barcode",
@@ -32,10 +33,10 @@ object InventoryCsv {
                 Row(b, full, open, stock, b.price?.let { it * stock })
             }
 
-    fun build(bottles: List<Bottle>, date: LocalDate): String {
+    fun build(bottles: List<Bottle>, at: LocalDateTime): String {
         val rows = rows(bottles)
         val lines = mutableListOf<List<String>>()
-        lines += listOf("Inventur Flaschenbestand", "Stichtag", date.format(dateFormat))
+        lines += listOf("Inventur Flaschenbestand", "Stichtag", at.format(dateFormat), "Erstellt um", at.format(timeFormat))
         lines += emptyList<String>()
         lines += header
         rows.forEach { r ->
@@ -67,7 +68,7 @@ object InventoryCsv {
         return "﻿" + lines.joinToString("\r\n") { it.joinToString(";") { field -> escape(field) } } + "\r\n"
     }
 
-    fun fileName(date: LocalDate): String = "tresenwerk-inventur-$date.csv"
+    fun fileName(at: LocalDateTime): String = "tresenwerk-inventur-${fileStamp(at)}.csv"
 
     /** Dezimalkomma, ohne Tausenderpunkte (sonst rechnet Excel falsch). */
     private fun number(value: Double, decimals: Int): String =
@@ -77,3 +78,8 @@ object InventoryCsv {
     private fun escape(field: String): String =
         if (field.any { it == ';' || it == '"' || it == '\n' || it == '\r' }) "\"" + field.replace("\"", "\"\"") + "\"" else field
 }
+
+private val stampFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
+
+/** Datum und Uhrzeit für Dateinamen, z. B. "2026-11-16_15-44-07" (ohne Doppelpunkte, die mögen nicht alle Systeme). */
+fun fileStamp(at: LocalDateTime): String = at.format(stampFormat)

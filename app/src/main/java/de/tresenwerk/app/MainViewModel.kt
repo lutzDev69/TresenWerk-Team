@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 /** Bindeglied zwischen Bildschirmen und Datenbank. */
@@ -107,12 +107,12 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
-    /** Schreibt die Inventurliste (CSV für den Steuerberater) zum Stichtag [date]. */
-    fun exportInventory(target: Uri, date: LocalDate, onResult: (String) -> Unit) {
+    /** Schreibt die Inventurliste (CSV für den Steuerberater) zum Zeitpunkt [at]. */
+    fun exportInventory(target: Uri, at: LocalDateTime, onResult: (String) -> Unit) {
         viewModelScope.launch {
             val message = runCatching {
                 val bottles = bottleDao.getAll()
-                val csv = InventoryCsv.build(bottles, date)
+                val csv = InventoryCsv.build(bottles, at)
                 withContext(Dispatchers.IO) {
                     app.contentResolver.openOutputStream(target, "wt")?.use { it.write(csv.toByteArray(Charsets.UTF_8)) }
                         ?: error("Datei lässt sich nicht schreiben")
