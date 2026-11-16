@@ -1,0 +1,4 @@
+<resources>
+    <!-- Entwicklerversion heißt anders, damit man sie von der Release-Version unterscheiden kann -->
+    <string name="app_name">TresenWerk Dev</string>
+</resources>

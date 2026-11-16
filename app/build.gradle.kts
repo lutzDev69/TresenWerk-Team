@@ -1,7 +1,15 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp) // erzeugt den Datenbank-Code für Room
+}
+
+// Zugangsdaten des Release-Schlüssels. Die Datei liegt nur lokal und ist NICHT in Git (siehe .gitignore).
+val keystoreProps = Properties().apply {
+    val f = rootProject.file("keystore.properties")
+    if (f.exists()) f.inputStream().use { load(it) }
 }
 
 android {
@@ -16,9 +24,28 @@ android {
         versionName = "0.3"
     }
 
+    signingConfigs {
+        if (keystoreProps.getProperty("storeFile") != null) {
+            create("release") {
+                storeFile = file(keystoreProps.getProperty("storeFile"))
+                storePassword = keystoreProps.getProperty("storePassword")
+                keyAlias = keystoreProps.getProperty("keyAlias")
+                keyPassword = keystoreProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
+        // Version für Tester: mit eigenem Schlüssel signiert, nur für echte Handys (ARM)
         release {
             isMinifyEnabled = false
+            signingConfigs.findByName("release")?.let { signingConfig = it }
+            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
+        }
+        // Entwicklerversion: eigene App "TresenWerk Dev", kann neben der Release-Version installiert sein
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-dev"
         }
     }
     compileOptions {

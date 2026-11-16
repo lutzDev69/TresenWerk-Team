@@ -66,6 +66,36 @@ Tests ausführen:
 ./gradlew testDebugUnitTest
 ```
 
+## Release-Version für Tester
+
+Es gibt zwei Varianten der App:
+
+| Variante | Name auf dem Handy | Wofür |
+|---|---|---|
+| Debug (`./gradlew installDebug`) | TresenWerk Dev | Entwickeln und Ausprobieren |
+| Release (`./release.sh`) | TresenWerk | Weitergeben an Tester |
+
+Beide können nebeneinander installiert sein und haben getrennte Daten.
+
+**Release bauen:**
+
+```bash
+./release.sh
+```
+
+Ergebnis: `dist/TresenWerk-<Version>.apk` – diese Datei weitergeben (Messenger, Mail, Cloud-Link).
+Vor jeder neuen Version in `app/build.gradle.kts` `versionCode` um 1 erhöhen und `versionName` anpassen,
+sonst lässt sich das Update nicht über die alte Version installieren.
+
+**Schlüssel – unbedingt sichern!**
+- Schlüssel: `/media/lutz/data/Android/keys/tresenwerk-release.jks`
+- Passwort: steht in `keystore.properties` (nur lokal, nicht in Git)
+- Ohne Schlüssel und Passwort können Tester keine Updates mehr installieren, ohne die App (und ihre Daten) zu löschen.
+  Beides an einem zweiten Ort aufbewahren (USB-Stick, Passwort-Manager).
+
+**Einrichtung auf einem neuen Rechner:** Schlüssel nach `keys/` kopieren, `keystore.properties.example`
+als `keystore.properties` kopieren und Passwort bei `storePassword` und `keyPassword` eintragen (beide gleich).
+
 ## Tipps zur Bedienung
 
 - **Schreibschrift-Logos** (z. B. Friedrichs) liest die Texterkennung oft falsch. Solche unsicheren Zeilen schlägt die App nicht mehr als Name vor – dann den Barcode scannen oder den Namen einmal eintippen.
