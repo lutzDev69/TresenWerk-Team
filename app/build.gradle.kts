@@ -17,11 +17,11 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "de.tresenwerk.app"
+        applicationId = "de.tresenwerk.team"   // eigene Kennung: läuft neben der Offline-Variante
         minSdk = 26
         targetSdk = 36
-        versionCode = 7
-        versionName = "0.5.2"
+        versionCode = 1
+        versionName = "0.6.0"
     }
 
     signingConfigs {
@@ -42,7 +42,7 @@ android {
             signingConfigs.findByName("release")?.let { signingConfig = it }
             ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
         }
-        // Entwicklerversion: eigene App "TresenWerk Dev", kann neben der Release-Version installiert sein
+        // Entwicklerversion: eigene App "TresenWerk Team Dev", kann neben der Release-Version installiert sein
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-dev"

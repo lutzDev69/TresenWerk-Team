@@ -1,4 +1,7 @@
-# TresenWerk – Anleitung
+# TresenWerk Team – Anleitung
+
+> Team-Variante (App-Kennung `de.tresenwerk.team`). Die Offline-Variante liegt im Repository **TresenWerk**.
+> Was unten über Funktionen steht, gilt für beide; die Serveranbindung kommt nach [docs/Konzept-Serveranbindung.md](docs/Konzept-Serveranbindung.md).
 
 Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf dem Gerät (kein Konto). Internet wird nur für die Barcode-Abfrage gebraucht.
 
@@ -76,8 +79,8 @@ Es gibt zwei Varianten der App:
 
 | Variante | Name auf dem Handy | Wofür |
 |---|---|---|
-| Debug (`./gradlew installDebug`) | TresenWerk Dev | Entwickeln und Ausprobieren |
-| Release (`./release.sh`) | TresenWerk | Weitergeben an Tester |
+| Debug (`./gradlew installDebug`) | TresenWerk Team Dev | Entwickeln und Ausprobieren |
+| Release (`./release.sh`) | TresenWerk Team | Weitergeben an Tester |
 
 Beide können nebeneinander installiert sein und haben getrennte Daten.
 
@@ -87,7 +90,7 @@ Beide können nebeneinander installiert sein und haben getrennte Daten.
 ./release.sh
 ```
 
-Ergebnis: `dist/TresenWerk-<Version>.apk` – diese Datei weitergeben (Messenger, Mail, Cloud-Link).
+Ergebnis: `dist/TresenWerk-Team-<Version>.apk` – diese Datei weitergeben (Messenger, Mail, Cloud-Link).
 Vor jeder neuen Version in `app/build.gradle.kts` `versionCode` um 1 erhöhen und `versionName` anpassen,
 sonst lässt sich das Update nicht über die alte Version installieren.
 

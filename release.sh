@@ -9,5 +9,5 @@ fi
 ./gradlew --console=plain assembleRelease
 version=$(grep -oP 'versionName = "\K[^"]+' app/build.gradle.kts)
 mkdir -p dist
-cp app/build/outputs/apk/release/app-release.apk "dist/TresenWerk-$version.apk"
-echo "Fertig: dist/TresenWerk-$version.apk"
+cp app/build/outputs/apk/release/app-release.apk "dist/TresenWerk-Team-$version.apk"
+echo "Fertig: dist/TresenWerk-Team-$version.apk"

@@ -2,18 +2,34 @@
   <img src="docs/logo/tresenwerk-logo.svg" alt="TresenWerk-Logo" width="120">
 </p>
 
-<h1 align="center">TresenWerk</h1>
+<h1 align="center">TresenWerk Team</h1>
 
 <p align="center">
   Rezepte, Flaschenbestand und Kalkulation für professionelle Bartender – als Android-App.<br>
-  Ohne Konto, offline, alle Daten bleiben auf dem Gerät.
+  Offline nutzbar – gemeinsame Daten für das Team über den eigenen Webspace (geplant).
 </p>
 
 <p align="center">
-  Version 0.5.2 · Android 8 oder neuer · Kotlin + Jetpack Compose
+  Version 0.6.0 (in Entwicklung) · Android 8 oder neuer · Kotlin + Jetpack Compose
 </p>
 
 ---
+
+> **Team-Variante von TresenWerk.** Ziel: Mehrere Geräte einer Bar teilen Rezepte und Bestand über einen
+> eigenen Webspace, mit Benutzerverwaltung. Plan: [docs/Konzept-Serveranbindung.md](docs/Konzept-Serveranbindung.md).
+>
+> Die reine Offline-Variante wird im Repository **TresenWerk** weitergeführt. Diese Variante ist eine Kopie davon
+> und hat eine eigene App-Kennung (`de.tresenwerk.team`), damit beide nebeneinander auf einem Handy laufen.
+> Bis die Serveranbindung fertig ist, funktioniert sie genau wie die Offline-Variante.
+
+## Fehlerkorrekturen aus der Offline-Variante übernehmen
+
+Das Original ist als `upstream` eingetragen (nur lesen, Hochladen dorthin ist gesperrt):
+
+```bash
+git fetch upstream
+git merge upstream/main
+```
 
 ## Funktionen
 
@@ -67,7 +83,7 @@ Voraussetzungen: JDK 17 oder neuer, Android SDK (Pfad in `local.properties`, z. 
 ./gradlew testDebugUnitTest
 ```
 
-Die Entwicklerversion heißt auf dem Handy **TresenWerk Dev** und läuft neben der Release-Version.
+Die Entwicklerversion heißt auf dem Handy **TresenWerk Team Dev** und läuft neben der Release-Version.
 
 ### Release für Tester
 
@@ -76,7 +92,7 @@ nicht im Repository (`keystore.properties`, `*.jks` stehen in `.gitignore`).
 
 ```bash
 cp keystore.properties.example keystore.properties   # einmalig, Passwort eintragen
-./release.sh                                           # → dist/TresenWerk-<Version>.apk
+./release.sh                                           # → dist/TresenWerk-Team-<Version>.apk
 ```
 
 Vor jedem Release `versionCode` und `versionName` in `app/build.gradle.kts` erhöhen.
