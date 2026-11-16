@@ -34,7 +34,7 @@ fun DataScreen(
     onAddSamples: () -> Unit,
     bottomBar: @Composable () -> Unit,
 ) {
-    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
         if (uri != null) onExport(uri)
     }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
@@ -60,15 +60,15 @@ fun DataScreen(
 
             SectionTitle("Sicherung")
             Text(
-                "Speichert alle Rezepte und Flaschen als JSON-Datei, z. B. in Google Drive, Nextcloud oder auf einem USB-Stick. Fotos sind nicht enthalten.",
+                "Speichert alle Rezepte, Flaschen und Fotos in einer ZIP-Datei, z. B. in Google Drive, Nextcloud oder auf einem USB-Stick.",
                 style = MaterialTheme.typography.bodyMedium,
             )
-            Button(onClick = { exportLauncher.launch("tresenwerk-${LocalDate.now()}.json") }) { Text("Sicherung erstellen") }
-            OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/json", "application/octet-stream", "text/plain")) }) {
+            Button(onClick = { exportLauncher.launch("tresenwerk-${LocalDate.now()}.zip") }) { Text("Sicherung erstellen") }
+            OutlinedButton(onClick = { importLauncher.launch(arrayOf("application/zip", "application/x-zip-compressed", "application/json", "application/octet-stream", "text/plain")) }) {
                 Text("Sicherung einlesen")
             }
             Text(
-                "Beim Einlesen werden Einträge hinzugefügt; Rezepte/Flaschen mit gleichem Namen werden übersprungen.",
+                "Beim Einlesen werden Einträge samt Fotos hinzugefügt; Rezepte/Flaschen mit gleichem Namen werden übersprungen. Ältere JSON-Sicherungen (ohne Fotos) lassen sich weiterhin einlesen.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

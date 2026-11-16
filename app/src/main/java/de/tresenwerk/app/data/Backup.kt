@@ -3,9 +3,17 @@ package de.tresenwerk.app.data
 import org.json.JSONArray
 import org.json.JSONObject
 
-/** Sicherung aller Rezepte und Flaschen als JSON-Datei (ohne Fotos). */
+/**
+ * Sicherung aller Rezepte und Flaschen als JSON. Fotos werden über ihren Dateinamen referenziert
+ * ("photo": "photos/abc.jpg") und liegen in der ZIP-Datei daneben (siehe [BackupArchive]).
+ * Beim Einlesen steht in photoPath zunächst dieser Eintragsname, nicht ein echter Pfad.
+ */
 object Backup {
-    private const val FORMAT = 1
+    private const val FORMAT = 2
+    const val PHOTO_FOLDER = "photos/"
+
+    /** Eintragsname eines Fotos in der ZIP-Datei. */
+    fun photoEntry(path: String?): Any = path?.let { PHOTO_FOLDER + java.io.File(it).name } ?: JSONObject.NULL
 
     fun toJson(recipes: List<RecipeWithIngredients>, bottles: List<Bottle>): String {
         val root = JSONObject()
@@ -26,6 +34,7 @@ object Backup {
                     put("notes", r.notes)
                     put("tags", r.tags)
                     put("favorite", r.isFavorite)
+                    put("photo", photoEntry(r.photoPath))
                     put("createdAt", r.createdAt)
                     put("updatedAt", r.updatedAt)
                     put("ingredients", JSONArray().apply {
@@ -53,6 +62,7 @@ object Backup {
                     put("notes", b.notes)
                     put("updatedAt", b.updatedAt)
                     put("barcode", b.barcode ?: JSONObject.NULL)
+                    put("photo", photoEntry(b.photoPath))
                 })
             }
         })
@@ -75,6 +85,7 @@ object Backup {
                 notes = o.optString("notes"),
                 tags = o.optString("tags"),
                 isFavorite = o.optBoolean("favorite"),
+                photoPath = o.photo(),
                 createdAt = o.optLong("createdAt", now),
                 updatedAt = o.optLong("updatedAt", now),
             )
@@ -100,10 +111,13 @@ object Backup {
                 notes = o.optString("notes"),
                 updatedAt = o.optLong("updatedAt", now),
                 barcode = if (o.isNull("barcode")) null else o.optString("barcode").ifBlank { null },
+                photoPath = o.photo(),
             )
         }
         return recipes to bottles
     }
+
+    private fun JSONObject.photo(): String? = if (isNull("photo")) null else optString("photo").ifBlank { null }
 
     private fun JSONArray?.objects(): List<JSONObject> =
         if (this == null) emptyList() else (0 until length()).map { getJSONObject(it) }

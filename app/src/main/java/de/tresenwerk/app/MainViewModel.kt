@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import de.tresenwerk.app.data.AppDatabase
 import de.tresenwerk.app.data.Backup
+import de.tresenwerk.app.data.BackupArchive
 import de.tresenwerk.app.data.Bottle
 import de.tresenwerk.app.data.Ingredient
 import de.tresenwerk.app.data.Recipe
@@ -19,6 +20,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.util.UUID
 
 /** Bindeglied zwischen Bildschirmen und Datenbank. */
 class MainViewModel(private val app: Application) : AndroidViewModel(app) {
@@ -83,64 +86,88 @@ class MainViewModel(private val app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Schreibt die ZIP-Sicherung (Rezepte, Flaschen und Fotos). */
     fun export(target: Uri, onResult: (String) -> Unit) {
         viewModelScope.launch {
             val message = runCatching {
                 val recipes = recipeDao.getAll()
                 val bottles = bottleDao.getAll()
                 val json = Backup.toJson(recipes, bottles)
-                withContext(Dispatchers.IO) {
-                    app.contentResolver.openOutputStream(target, "wt")?.use { it.write(json.toByteArray()) }
+                val photos = (recipes.mapNotNull { it.recipe.photoPath } + bottles.mapNotNull { it.photoPath }).map(::File)
+                val photoCount = withContext(Dispatchers.IO) {
+                    app.contentResolver.openOutputStream(target, "wt")?.use { BackupArchive.write(it, json, photos) }
                         ?: error("Datei lässt sich nicht schreiben")
                 }
-                "Gesichert: ${recipes.size} Rezepte, ${bottles.size} Flaschen."
+                "Gesichert: ${recipes.size} Rezepte, ${bottles.size} Flaschen, $photoCount Fotos."
             }.getOrElse { "Export fehlgeschlagen: ${it.message}" }
             onResult(message)
         }
     }
 
-    /** Fügt Rezepte/Flaschen aus einer Sicherung hinzu. Gleichnamige Einträge werden übersprungen. */
+    /**
+     * Fügt Rezepte/Flaschen aus einer Sicherung (ZIP mit Fotos oder ältere JSON-Datei) hinzu.
+     * Gleichnamige Einträge werden übersprungen.
+     */
     fun import(source: Uri, onResult: (String) -> Unit) {
         viewModelScope.launch {
+            val tempDir = File(app.cacheDir, "import_${System.currentTimeMillis()}")
             val message = runCatching {
-                val text = withContext(Dispatchers.IO) {
-                    app.contentResolver.openInputStream(source)?.use { it.readBytes().decodeToString() }
+                val content = withContext(Dispatchers.IO) {
+                    app.contentResolver.openInputStream(source)?.use { BackupArchive.read(it, tempDir) }
                         ?: error("Datei lässt sich nicht lesen")
                 }
-                val (recipes, bottles) = Backup.fromJson(text)
-                val result = addAll(recipes, bottles)
-                "Importiert: ${result.first} Rezepte, ${result.second} Flaschen" +
-                    (if (result.third > 0) " (${result.third} schon vorhanden, übersprungen)." else ".")
+                val (recipes, bottles) = Backup.fromJson(content.json)
+                val result = addAll(recipes, bottles, content.photos)
+                "Importiert: ${result.recipes} Rezepte, ${result.bottles} Flaschen, ${result.photos} Fotos" +
+                    (if (result.skipped > 0) " (${result.skipped} schon vorhanden, übersprungen)." else ".")
             }.getOrElse { "Import fehlgeschlagen: ${it.message}" }
+            withContext(Dispatchers.IO) { tempDir.deleteRecursively() }
             onResult(message)
         }
     }
 
     fun addSamples(onResult: (String) -> Unit) {
         viewModelScope.launch {
-            val (added, _, skipped) = addAll(SampleRecipes.all, emptyList())
-            onResult(if (added > 0) "$added Beispielrezepte hinzugefügt." else "Beispielrezepte sind schon vorhanden ($skipped).")
+            val result = addAll(SampleRecipes.all, emptyList(), emptyMap())
+            onResult(if (result.recipes > 0) "${result.recipes} Beispielrezepte hinzugefügt." else "Beispielrezepte sind schon vorhanden (${result.skipped}).")
         }
     }
 
-    private suspend fun addAll(recipes: List<RecipeWithIngredients>, bottles: List<Bottle>): Triple<Int, Int, Int> {
+    private class ImportResult(val recipes: Int, val bottles: Int, val photos: Int, val skipped: Int)
+
+    /** [photos]: Eintragsname im Archiv → entpackte Datei. In photoPath steht beim Import der Eintragsname. */
+    private suspend fun addAll(
+        recipes: List<RecipeWithIngredients>,
+        bottles: List<Bottle>,
+        photos: Map<String, File>,
+    ): ImportResult {
         val existingRecipes = recipeDao.getAll().map { it.recipe.name.lowercase() }.toMutableSet()
         val existingBottles = bottleDao.getAll().map { (it.brand + "|" + it.name).lowercase() }.toMutableSet()
         var r = 0
         var b = 0
+        var p = 0
         var skipped = 0
+
+        suspend fun takePhoto(entry: String?): String? {
+            val file = entry?.let { photos[it] } ?: return null
+            return withContext(Dispatchers.IO) {
+                val target = File(Photos.dir(app), "${UUID.randomUUID()}.jpg")
+                runCatching { file.copyTo(target); target.absolutePath }.getOrNull()
+            }?.also { p++ }
+        }
+
         recipes.forEach { rw ->
             if (existingRecipes.add(rw.recipe.name.lowercase())) {
-                recipeDao.save(rw.recipe.copy(id = 0, photoPath = null), rw.sortedIngredients())
+                recipeDao.save(rw.recipe.copy(id = 0, photoPath = takePhoto(rw.recipe.photoPath)), rw.sortedIngredients())
                 r++
             } else skipped++
         }
         bottles.forEach { bottle ->
             if (existingBottles.add((bottle.brand + "|" + bottle.name).lowercase())) {
-                bottleDao.insert(bottle.copy(id = 0, photoPath = null))
+                bottleDao.insert(bottle.copy(id = 0, photoPath = takePhoto(bottle.photoPath)))
                 b++
             } else skipped++
         }
-        return Triple(r, b, skipped)
+        return ImportResult(r, b, p, skipped)
     }
 }

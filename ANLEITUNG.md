@@ -14,7 +14,7 @@ Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf d
 - **Sorte erkennen**: „Dry Gin“, „Bourbon“, „Liqueur“ … füllt die Kategorie automatisch
 - **Füllstand am Foto messen**: drei Linien auf Boden, Voll-Höhe und Flüssigkeit schieben → Prozent und Rest-ml
 - **Bestandsanzeige im Rezept**: neben jeder Zutat steht der Füllstand der passenden Flasche
-- **Sicherung**: Export/Import als JSON-Datei (ohne Fotos), Rezept als Text teilen
+- **Sicherung**: Export/Import als ZIP-Datei mit allen Fotos (ältere JSON-Sicherungen lassen sich weiter einlesen), Rezept als Text teilen
 
 ## Projektaufbau (was ist was?)
 
@@ -27,7 +27,8 @@ Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf d
 | `.../MainViewModel.kt` | Bindeglied Bildschirme ↔ Datenbank, Export/Import |
 | `.../data/Entities.kt` | Tabellen: Rezept, Zutat, Flasche |
 | `.../data/Database.kt` | Datenbank-Abfragen (Room) |
-| `.../data/Backup.kt` | JSON-Sicherung schreiben und lesen |
+| `.../data/Backup.kt` | Rezepte/Flaschen als JSON schreiben und lesen |
+| `.../data/BackupArchive.kt` | ZIP-Sicherung: backup.json plus Ordner photos/ |
 | `.../data/SampleRecipes.kt` | Beispielrezepte |
 | `.../domain/Measure.kt` | Einheiten, Umrechnung, Zahlenformat |
 | `.../domain/BatchCalculator.kt` | Hochrechnen auf Portionen, Verdünnung |
@@ -39,7 +40,7 @@ Rezept- und Bestands-App für professionelle Bartender. Alle Daten bleiben auf d
 | `.../util/Photos.kt` | Fotos verkleinern, drehen, speichern, aufräumen |
 | `.../ui/*Screen.kt` | Die einzelnen Bildschirme |
 | `.../ui/FillLevelDialog.kt` | Füllstand-Messung am Foto |
-| `app/src/test/...` | Automatische Tests (Batch, Suche, Etikett, Füllstand) |
+| `app/src/test/...` | Automatische Tests (Batch, Suche, Etikett, Barcode, Füllstand, Sicherung) |
 
 ## App bauen und installieren
 
@@ -69,7 +70,6 @@ Tests ausführen:
 
 ## Grenzen der Version 0.2
 
-- Fotos sind nicht im JSON-Backup enthalten.
 - Der Füllstand wird nicht automatisch erkannt, sondern mit den Linien gemessen.
 - Kleine Marken fehlen oft in Open Food Facts; dann Name einmal selbst eintragen.
 - Die Zuordnung Zutat → Flasche läuft über Namensvergleich (z. B. „Gin“ findet „Tanqueray London Dry Gin“).
